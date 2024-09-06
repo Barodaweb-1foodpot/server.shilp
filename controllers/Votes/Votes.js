@@ -1,24 +1,25 @@
-const Inquiry = require("../../models/Inquiry/inquiry");
+const Votes = require("../../models/Votes/Votes");
 const fs = require("fs");
 
-exports.getInquiry = async (req, res) => {
+exports.getVoter = async (req, res) => {
   try {
-    const find = await Inquiry.findOne({ _id: req.params._id }).exec();
+    const find = await Votes.findOne({ _id: req.params._id }).exec();
     res.json(find);
   } catch (error) {
     return res.status(500).send(error);
   }
 };
 
-exports.createInquiry = async (req, res) => {
+exports.createVoter = async (req, res) => {
   try {
-      let { yourName, subject, yourEmail,yourMessage } = req.body;
+      let { StartupID, VoterName, Voteremail,VotercontactNo , Remarks } = req.body;
       console.log(req.body);  
-      const add = await new Inquiry({
-        yourName,
-        subject,
-        yourEmail,
-        yourMessage
+      const add = await new Votes({
+        StartupID,
+        VoterName,
+        Voteremail,
+        VotercontactNo,
+        Remarks
       }).save();
       res.status(200).json({ isOk: true, data: add, message: "" });
     }
@@ -28,16 +29,16 @@ exports.createInquiry = async (req, res) => {
   }
 };
 
-exports.listInquiry = async (req, res) => {
+exports.listVoter = async (req, res) => {
   try {
-    const list = await Inquiry.find().sort({ createdAt: -1 }).exec();
+    const list = await Votes.find().sort({ createdAt: -1 }).exec();
     res.json(list);
   } catch (error) {
     return res.status(400).send(error);
   }
 };
 
-exports.listInquiryByParams = async (req, res) => {
+exports.listVoterByParams = async (req, res) => {
   try {
     let { skip, per_page, sorton, sortdir, match } = req.body;
 
@@ -117,7 +118,7 @@ exports.listInquiryByParams = async (req, res) => {
       ].concat(query);
     }
 
-    const list = await Inquiry.aggregate(query);
+    const list = await Votes.aggregate(query);
 
     res.json(list);
   } catch (error) {
@@ -126,14 +127,15 @@ exports.listInquiryByParams = async (req, res) => {
   }
 };
 
-exports.countInquiry = async (req, res) => {
-  try {
-    const count = await Inquiry.countDocuments().exec();
-    res.json({ totalEntries: count });
-  } catch (error) {
-    return res.status(400).send(error);
-  }
+exports.countVoters = async (req, res) => {
+    try {
+      const count = await Votes.countDocuments().exec();
+      res.json({ totalEntries: count });
+    } catch (error) {
+      return res.status(400).send(error);
+    }
 };
+
 
 
 

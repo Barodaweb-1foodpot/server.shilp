@@ -4,12 +4,12 @@ const router = express.Router();
 
 const catchAsync = require("../utils/catchAsync");
 const {
-    createInquiry,
-    listInquiry,
-    listInquiryByParams,
-  getInquiry,
-  countInquiry
-} = require("../controllers/Inquiry/Inquiry");
+    getVoter,
+    createVoter,
+    listVoter,
+    listVoterByParams,
+    countVoters
+} = require("../controllers/Votes/Votes");
 const multer = require("multer");
 
 const multerStorage = multer.diskStorage({
@@ -25,14 +25,14 @@ const multerStorage = multer.diskStorage({
 
 const upload = multer({ storage: multerStorage });
 
-router.post("/auth/create/Inquiry", catchAsync(createInquiry));
+router.post("/auth/create/Voter", catchAsync(createVoter));
 
-router.get("/auth/list/Inquiry", catchAsync(listInquiry));
+router.get("/auth/list/Voter", catchAsync(listVoter));
 
-router.post("/auth/listByparams/Inquiry", catchAsync(listInquiryByParams));
+router.post("/auth/listByparams/Voter", catchAsync(listVoterByParams));
 
-router.get("/auth/get/Inquiry/:_id", catchAsync(getInquiry));
+router.get("/auth/get/Voter/:_id", catchAsync(getVoter));
 
-router.get("/auth/count/Inquiry", catchAsync(countInquiry));
+router.get("/auth/count/Voters", catchAsync(countVoters));
 
 module.exports = router;
