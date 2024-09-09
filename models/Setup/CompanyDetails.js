@@ -32,10 +32,6 @@ const CompanyDetailsSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    ContactNo_Sales: {
-      type: Number,
-      // required: true,
-    },
     ContactNo_Support: {
       type: Number,
       // required: true,
@@ -52,10 +48,6 @@ const CompanyDetailsSchema = new mongoose.Schema(
       type: String,
       // required: true,
     },
-    EmailID_Sales: {
-      type: String,
-      // required: true,
-    },
     Website1: {
       type: String,
       required: true,
@@ -63,9 +55,9 @@ const CompanyDetailsSchema = new mongoose.Schema(
     Website2: {
       type: String,
     },
-    Favicon: {
-      type: String,
-    },
+    // Favicon: {
+    //   type: String,
+    // },
     Icon: {
       type: String,
     },
@@ -74,14 +66,6 @@ const CompanyDetailsSchema = new mongoose.Schema(
     },
     DigitalSignature: {
       type: String,
-    },
-    GSTNo: {
-      type: String,
-      // required: true,
-    },
-    IsShowAllLocations: {
-      type: Boolean,
-      default: true,
     },
     IsActive: {
       type: Boolean,
