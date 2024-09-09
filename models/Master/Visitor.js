@@ -7,9 +7,9 @@ const VisitorSchema = new mongoose.Schema(
             ref: "ParticipantCategoryMaster",
             required: true,
         },
-        ticketPassId: {
+        ticketId: {
             type: Schema.Types.ObjectId,
-            ref: "",
+            ref: "TicketMaster",
             required: true,
         },
         name: {

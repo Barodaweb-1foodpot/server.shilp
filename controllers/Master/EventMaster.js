@@ -1,18 +1,36 @@
-const Investor = require("../../models/Master/Investor");
+const EventMaster = require("../../models/Master/EventMaster");
 const fs = require("fs");
 
-exports.listInvestor = async (req, res) => {
-    const list = await Investor.find().sort({ createdAt: -1 }).exec();
+exports.listEventMaster = async (req, res) => {
+    const list = await EventMaster.find().sort({ createdAt: -1 }).exec();
 
     res.json(list);
 };
 
-exports.listInvestorByParams = async (req, res) => {
+exports.listEventMasterByParams = async (req, res) => {
     let { skip, per_page, sorton, sortdir, match, IsActive } = req.body;
 
     let query = [
         {
             $match: { IsActive: IsActive },
+        },
+        {
+            $match: {
+                $or: [
+                    {
+                        name: { $regex: match, $options: "i" },
+                    },
+                    {
+                        contactNo: { $regex: match, $options: "i" },
+                    },
+                    {
+                        email: { $regex: match, $options: "i" },
+                    },
+                    {
+                        City: { $regex: match, $options: "i" },
+                    },
+                ],
+            },
         },
         {
             $facet: {
@@ -48,28 +66,6 @@ exports.listInvestorByParams = async (req, res) => {
             },
         },
     ];
-    if (match) {
-        query = [
-            {
-                $match: {
-                    $or: [
-                        {
-                            name: { $regex: match, $options: "i" },
-                        },
-                        {
-                            contactNo: { $regex: match, $options: "i" },
-                        },
-                        {
-                            email: { $regex: match, $options: "i" },
-                        },
-                        {
-                            City: { $regex: match, $options: "i" },
-                        },
-                    ],
-                },
-            },
-        ].concat(query);
-    }
 
     if (sorton && sortdir) {
         let sort = {};
@@ -89,48 +85,48 @@ exports.listInvestorByParams = async (req, res) => {
         ].concat(query);
     }
 
-    const listInvestor = await Investor.aggregate(query);
+    const listEventMaster = await EventMaster.aggregate(query);
 
-    res.json(listInvestor);
+    res.json(listEventMaster);
 };
 
-exports.createInvestor = async (req, res) => {
+exports.createEventMaster = async (req, res) => {
     try {
-        const addInvestor = await new Investor(req.body).save();
+        const addEventMaster = await new EventMaster(req.body).save();
         res.status(200).json({
             isOk: true,
-            data: addInvestor,
+            data: addEventMaster,
         });
 
     } catch (err) {
-        console.log("Create Investor error", err);
+        console.log("Create EventMaster error", err);
         return res.status(400).send(err);
     }
 };
 
-exports.getInvestor = async (req, res) => {
-    const getInvestor = await Investor.findOne({
+exports.getEventMaster = async (req, res) => {
+    const getEventMaster = await EventMaster.findOne({
         _id: req.params._id,
     }).exec();
-    res.status(200).json(getInvestor);
+    res.status(200).json(getEventMaster);
 };
 
-exports.removeInvestor = async (req, res) => {
+exports.removeEventMaster = async (req, res) => {
     try {
-        const delInvestor = await Investor.findOneAndRemove({
+        const delEventMaster = await EventMaster.findOneAndRemove({
             _id: req.params._id,
         });
-        console.log(delInvestor);
-        res.status(200).json(delInvestor);
+        console.log(delEventMaster);
+        res.status(200).json(delEventMaster);
     } catch (err) {
-        console.log("delete Investor error", err);
-        return res.status(400).send("delete Investor failed");
+        console.log("delete EventMaster error", err);
+        return res.status(400).send("delete EventMaster failed");
     }
 };
 
-exports.updateInvestor = async (req, res) => {
+exports.updateEventMaster = async (req, res) => {
     try {
-        const update = await Investor.findOneAndUpdate(
+        const update = await EventMaster.findOneAndUpdate(
             { _id: req.params._id },
             req.body,
             { new: true }
@@ -138,7 +134,7 @@ exports.updateInvestor = async (req, res) => {
         res.status(200).json(update);
     } catch (err) {
         console.log(err);
-        res.status(400).send("update Investor failed");
+        res.status(400).send("update EventMaster failed");
     }
 };
 
