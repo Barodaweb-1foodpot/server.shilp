@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema, model, Types } = require("mongoose");
-const InvestorSchema = new mongoose.Schema(
+const EventMasterSchema = new mongoose.Schema(
     {
         participantCategoryId: {
             type: Schema.Types.ObjectId,
@@ -55,4 +55,4 @@ const InvestorSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-module.exports = mongoose.model("Investor", InvestorSchema);
+module.exports = mongoose.model("EventMaster", EventMasterSchema);
