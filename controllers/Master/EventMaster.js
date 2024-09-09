@@ -7,7 +7,7 @@ exports.listEventMaster = async (req, res) => {
     res.json(list);
 };
 
-exports.listEventMaster = async (req, res) => {
+exports.listEventMasterByParams = async (req, res) => {
     let { skip, per_page, sorton, sortdir, match, IsActive } = req.body;
 
     let query = [

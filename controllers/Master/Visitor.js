@@ -7,7 +7,7 @@ exports.listVisitor = async (req, res) => {
     res.json(list);
 };
 
-exports.listVisitor = async (req, res) => {
+exports.listVisitorByParams = async (req, res) => {
     let { skip, per_page, sorton, sortdir, match, IsActive } = req.body;
 
     let query = [

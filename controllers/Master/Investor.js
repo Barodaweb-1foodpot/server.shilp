@@ -7,7 +7,7 @@ exports.listInvestor = async (req, res) => {
     res.json(list);
 };
 
-exports.listInvestor = async (req, res) => {
+exports.listInvestorByParams = async (req, res) => {
     let { skip, per_page, sorton, sortdir, match, IsActive } = req.body;
 
     let query = [
