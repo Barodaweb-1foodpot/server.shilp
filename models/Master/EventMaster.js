@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 const { Schema, model, Types } = require("mongoose");
 const EventMasterSchema = new mongoose.Schema(
     {
-        participantCategoryId: {
-            type: Schema.Types.ObjectId,
-            ref: "ParticipantCategoryMaster",
-            required: true,
-        },
+        // participantCategoryId: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: "ParticipantCategoryMaster",
+        //     required: true,
+        // },
         name: {
             type: String,
             required: true,
