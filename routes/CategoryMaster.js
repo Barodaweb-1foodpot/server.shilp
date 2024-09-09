@@ -39,4 +39,6 @@ router.delete(
   catchAsync(removeCategoryMaster)
 );
 
+router.get("/auth/get/list/ActiveCategories" , catchAsync(listActiveCategories));
+
 module.exports = router;
