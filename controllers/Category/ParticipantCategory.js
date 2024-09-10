@@ -133,3 +133,12 @@ exports.removeParticipantCategoryMaster = async (req, res) => {
     res.status(400).send(err);
   }
 };
+
+exports.getActiveParticipantCategoryMaster = async (req, res) => {
+  try {
+    const find = await ParticipantCategoryMaster.find({ IsActive: true }).exec();
+    res.json(find);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+}

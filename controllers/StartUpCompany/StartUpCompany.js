@@ -98,16 +98,7 @@ exports.listStartUpCompanyByParams = async (req, res) => {
           $match: {
             $or: [
               {
-                firstName: { $regex: match, $options: "i" },
-              },
-              {
-                lastName: { $regex: match, $options: "i" },
-              },
-              {
-                email: { $regex: match, $options: "i" },
-              },
-              {
-                password: { $regex: match, $options: "i" },
+                CompanyName: { $regex: match, $options: "i" },
               },
             ],
           },
@@ -144,13 +135,15 @@ exports.listStartUpCompanyByParams = async (req, res) => {
 
 exports.updateStartUpCompany = async (req, res) => {
   try {
-    let bannerImage = req.file
-      ? `uploads/userImages/${req.file.filename}`
+    console.log("req.file", req.file);  
+    let Logo = req.file
+      ? `uploads/StartUpCompany/${req.file.filename}`
       : null;
     let fieldvalues = { ...req.body };
-    if (bannerImage != null) {
-      fieldvalues.bannerImage = bannerImage;
+    if (Logo != null) {
+      fieldvalues.Logo = Logo;
     }
+    console.log("fieldvalues", fieldvalues);
     const update = await StartUpCompany.findOneAndUpdate(
       { _id: req.params._id },
       fieldvalues,

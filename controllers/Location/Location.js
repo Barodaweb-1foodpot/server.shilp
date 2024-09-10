@@ -381,6 +381,20 @@ exports.getState = async (req, res) => {
   }
 };
 
+exports.listStateByCountry = async (req, res) => {
+  try {
+    console.log("list state by country", req);
+    const list = await State.find({ CountryID: req.params._id })
+      .sort({ StateName: 1 })
+      .exec();
+    console.log("list state by country", list);
+    res.json(list);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("list state by country failed");
+  }
+};
+
 ////////////////////////////////////////City//////////////////////////////////////////
 exports.listCity = async (req, res) => {
   try {
