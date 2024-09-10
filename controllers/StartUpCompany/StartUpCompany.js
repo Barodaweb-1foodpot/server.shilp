@@ -1,33 +1,55 @@
-const ParticipantCategoryMaster = require("../../models/Category/ParticipantCategory");
+const StartUpCompany = require("../../models/StartupsCompany/StartupComapny");
+const fs = require("fs");
 
-exports.getParticipantCategoryMaster = async (req, res) => {
+exports.getStartUpCompany = async (req, res) => {
   try {
-    const find = await ParticipantCategoryMaster.findOne({ _id: req.params._id }).exec();
+    const find = await StartUpCompany.findOne({ _id: req.params._id }).exec();
     res.json(find);
   } catch (error) {
     return res.status(500).send(error);
   }
 };
 
-exports.createParticipantCategoryMaster = async (req, res) => {
+exports.createStartUpCompany = async (req, res) => {
   try {
-    const add = await new ParticipantCategoryMaster(req.body).save();
-    res.json(add);
+
+    if (!fs.existsSync(`${__basedir}/uploads/StartUpCompany`)) {
+      fs.mkdirSync(`${__basedir}/uploads/StartUpCompany`);
+    }
+
+    let Logo = req.file
+      ? `uploads/StartUpCompany/${req.file.filename}`
+      : null;
+
+
+      let { CategoryID, CompanyName,ContactNo, Email , Description , IsActive } = req.body;  
+      const add = await new StartUpCompany({
+        CategoryID,
+        CompanyName,
+        ContactNo,
+        Email,
+        Logo,
+        Description,
+        IsActive
+        
+      }).save();
+      res.status(200).json({ isOk: true, data: add, message: "" });
   } catch (err) {
-    return res.status(400).send(err);
+    console.log(err);
+    return res.status(500).send(err);
   }
 };
 
-exports.listParticipantCategoryMaster = async (req, res) => {
+exports.listStartUpCompany = async (req, res) => {
   try {
-    const list = await ParticipantCategoryMaster.find({ IsActive: true }).sort({ categoryName : 1 }).exec();
+    const list = await StartUpCompany.find().sort({ createdAt: -1 }).exec();
     res.json(list);
   } catch (error) {
     return res.status(400).send(error);
   }
 };
 
-exports.listParticipantCategoryMasterByParams = async (req, res) => {
+exports.listStartUpCompanyByParams = async (req, res) => {
   try {
     let { skip, per_page, sorton, sortdir, match, IsActive } = req.body;
 
@@ -76,7 +98,7 @@ exports.listParticipantCategoryMasterByParams = async (req, res) => {
           $match: {
             $or: [
               {
-                categoryName: { $regex: match, $options: "i" },
+                CompanyName: { $regex: match, $options: "i" },
               },
             ],
           },
@@ -102,19 +124,29 @@ exports.listParticipantCategoryMasterByParams = async (req, res) => {
       ].concat(query);
     }
 
-    const list = await ParticipantCategoryMaster.aggregate(query);
+    const list = await StartUpCompany.aggregate(query);
 
     res.json(list);
   } catch (error) {
+    console.log(error);
     res.status(500).send(error);
   }
 };
 
-exports.updateParticipantCategoryMaster = async (req, res) => {
+exports.updateStartUpCompany = async (req, res) => {
   try {
-    const update = await ParticipantCategoryMaster.findOneAndUpdate(
+    console.log("req.file", req.file);  
+    let Logo = req.file
+      ? `uploads/StartUpCompany/${req.file.filename}`
+      : null;
+    let fieldvalues = { ...req.body };
+    if (Logo != null) {
+      fieldvalues.Logo = Logo;
+    }
+    console.log("fieldvalues", fieldvalues);
+    const update = await StartUpCompany.findOneAndUpdate(
       { _id: req.params._id },
-      req.body,
+      fieldvalues,
       { new: true }
     );
     res.json(update);
@@ -123,22 +155,14 @@ exports.updateParticipantCategoryMaster = async (req, res) => {
   }
 };
 
-exports.removeParticipantCategoryMaster = async (req, res) => {
+exports.removeStartUpCompany = async (req, res) => {
   try {
-    const delTL = await ParticipantCategoryMaster.findOneAndRemove({
+    const del = await StartUpCompany.findOneAndRemove({
       _id: req.params._id,
     });
-    res.json(delTL);
+    res.json(del);
   } catch (err) {
     res.status(400).send(err);
   }
 };
 
-exports.getActiveParticipantCategoryMaster = async (req, res) => {
-  try {
-    const find = await ParticipantCategoryMaster.find({ IsActive: true }).exec();
-    res.json(find);
-  } catch (error) {
-    return res.status(500).send(error);
-  }
-}
