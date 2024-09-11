@@ -46,7 +46,7 @@ router.get("/auth/activeLocation/state", catchAsync(listActiveState));
 router.post("/auth/location/states", catchAsync(listStateByParams));
 router.delete("/auth/location/state/:_id", catchAsync(removeState));
 router.post("/auth/location/state", catchAsync(createState));
-router.post("/auth/location/statesByCountry/:_id", catchAsync(listStateByCountry));
+router.get("/auth/location/statesByCountry/:_id", catchAsync(listStateByCountry));
 // router.put("/auth/location/state/:_id", removeAndUpdateState);
 router.put("/auth/location/stateupdate/:_id", catchAsync(updateState));
 router.get("/auth/location/state/:_id", catchAsync(getState));
