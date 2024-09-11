@@ -38,6 +38,5 @@ router.put("/auth/update/adminUser/:_id",upload.single("myFile"), catchAsync(upd
 
 router.delete("/auth/remove/adminUser/:_id", catchAsync(removeAdminUser));
 
-router.post("/adminLogin", catchAsync(userLoginAdmin));
 
 module.exports = router;

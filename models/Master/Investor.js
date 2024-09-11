@@ -5,23 +5,23 @@ const InvestorSchema = new mongoose.Schema(
         participantCategoryId: {
             type: Schema.Types.ObjectId,
             ref: "ParticipantCategoryMaster",
-            required: true,
+            
         },
         name: {
             type: String,
-            required: true,
+            
         },
         contactNo: {
             type: String,
-            required: true,
+            
         },
         email: {
             type: String,
-            required: true,
+            
         },
         companyName: {
             type: String,
-            required: true,
+            
         },
         description: {
             type: String,
@@ -30,12 +30,12 @@ const InvestorSchema = new mongoose.Schema(
         StateID: {
             type: Schema.Types.ObjectId,
             ref: "State",
-            required: true,
+            
         },
         CountryID: {
             type: Schema.Types.ObjectId,
             ref: "Country",
-            required: true,
+            
         },
         City: {
             type: String,
@@ -49,7 +49,7 @@ const InvestorSchema = new mongoose.Schema(
         IsActive: {
             type: Boolean,
             default: true,
-            required: true,
+            
         },
     },
     { timestamps: true }
