@@ -1,4 +1,6 @@
 const express = require("express");
+const path= require('path')
+const fs= require('fs')
 
 const router = express.Router();
 
@@ -14,19 +16,29 @@ const {
 } = require("../controllers/Master/Startup");
 const multer = require("multer");
 
+
+const directories = ["uploads/userImages"];
+directories.forEach((dir) => {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+});
 const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/userImages");
-  },
-  filename: (req, file, cb) => {
-    // const ext = file.mimetype.split("/")[1];
-    // cb(null, `${uuidv4()}-${Date.now()}.${ext}`);
-    cb(null, Date.now() + "_" + file.originalname);
-  },
+    destination: (req, file, cb) => {
+        cb(null, "uploads/userImages");
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "_" + file.originalname);
+    },
 });
 
+
 const upload = multer({ storage: multerStorage });
-router.post("/auth/create/StartUpDetailsMaster",upload.single("bannerImage"), catchAsync(createStartUpDetailsMaster));
+router.post("/auth/create/StartUpDetailsMaster", upload.fields([
+  { name: 'logo', maxCount: 1 },
+  { name: 'brochure', maxCount: 1 },
+  { name: 'productImages', maxCount: 1 },
+]), catchAsync(createStartUpDetailsMaster));
 
 router.get("/auth/list/StartUpDetailsMaster", catchAsync(listStartUpDetailsMaster));
 
