@@ -97,6 +97,7 @@ exports.listInvestorByParams = async (req, res) => {
 exports.createInvestor = async (req, res) => {
     try {
         const addInvestor = await new Investor(req.body).save();
+        console.log(addInvestor)
         res.status(200).json({
             isOk: true,
             data: addInvestor,
