@@ -5,35 +5,60 @@ const StartupSchema = new mongoose.Schema(
         participantCategoryId: {
             type: Schema.Types.ObjectId,
             ref: "ParticipantCategoryMaster",
-            
         },
         categoryId: {
             type: Schema.Types.ObjectId,
             ref: "CategoryMaster",
-            
         },
         contactPersonName: {
             type: String,
-            
         },
         contactNo: {
             type: String,
-            
+        },
+        countryCode: {
+            type: String,
         },
         email: {
             type: String,
-            
         },
+
         password: String,
+
         companyName: {
             type: String,
-            
         },
+        legalName:
+        {
+            type:String
+        },
+        founderName :{
+            type:String
+        },
+        stageOfStartup :{
+            type:String
+        },
+        yearFounded:{
+            type:Date
+        },
+        teamSize :{
+            type:String
+        },
+
         logo: String,
+
+        brochure: {
+            type: String,
+        },
+        productImages : {
+            type: String,
+        },
         description: {
             type: String,
         },
-        remarks: String,
+
+        // aboutStartup: String,
+
         StateID: {
             type: Schema.Types.ObjectId,
             ref: "State",
@@ -55,6 +80,7 @@ const StartupSchema = new mongoose.Schema(
             type: Number,
             
         },
+
         IsActive: {
             type: Boolean,
             default: true,

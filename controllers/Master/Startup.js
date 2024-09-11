@@ -12,16 +12,43 @@ exports.getStartUpDetailsMaster = async (req, res) => {
 
 exports.createStartUpDetailsMaster = async (req, res) => {
   try {
-
+    console.log("jii", req.body)
     if (!fs.existsSync(`${__basedir}/uploads/userImages`)) {
       fs.mkdirSync(`${__basedir}/uploads/userImages`);
     }
 
-    let bannerImage = req.file
-      ? `uploads/userImages/${req.file.filename}`
-      : null;
+    // let logo =  `uploads/userImages/${logo[0].filename}` ? `uploads/userImages/${logo[0].filename}` : null;
+    // let productImages =  `uploads/userImages/${productImages[0].filename}`? `uploads/userImages/${productImages[0].filename}` : null;
+    // let brochure = `uploads/userImages/${brochure[0].filename}` ? `uploads/userImages/${brochure[0].filename}` : null;
+    
+    let logo = req.files.logo ? `uploads/speakerImages/${req.files.logo[0].filename}` : null;
+    let productImages = req.files.productImages ? `uploads/speakerImages/${req.files.productImages[0].filename}` : null;
+    let brochure = req.files.brochure ? `uploads/speakerImages/${req.files.brochure[0].filename}` : null;
+    // let AchievementImage3 = req.files.AchievementImage3 ? `uploads/speakerImages/${req.files.AchievementImage3[0].filename}` : null;
 
-      let { participantCategoryId, categoryId, contactPersonName,contactNo, email , password , companyName , description,remarks,StateID,CountryID,City,address,pincode,IsActive } = req.body;  
+
+      let { 
+        participantCategoryId, 
+        categoryId, 
+        contactPersonName,
+        contactNo,
+         email ,
+          password , 
+          companyName ,
+           description,
+           remarks,
+           StateID,
+           CountryID,
+           City,
+           address,
+           pincode,
+           countryCode,
+           legalName,
+           founderName,
+           stageOfStartup,
+           yearFounded,
+           teamSize,
+           IsActive } = req.body;  
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
     }).exec();
@@ -48,7 +75,15 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         address,
         pincode,
         IsActive,
-        bannerImage
+        logo:logo,
+        brochure:brochure,
+        productImages:productImages,
+        countryCode,
+           legalName,
+           founderName,
+           stageOfStartup,
+           yearFounded,
+           teamSize,
       }).save();
       res.status(200).json({ isOk: true, data: add, message: "" });
     }
