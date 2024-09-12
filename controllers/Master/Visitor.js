@@ -139,17 +139,34 @@ exports.listVisitorByParams = async (req, res) => {
 
 exports.createVisitor = async (req, res) => {
     try {
+        // Save the new visitor
         const addVisitor = await new Visitor(req.body).save();
+
+        // Populate 'ticketId' and within it, populate 'eventId'
+        const populatedVisitor = await Visitor.findById(addVisitor._id)
+            .populate({
+                path: 'ticketId',        // First, populate ticketId
+                populate: {
+                    path: 'eventId',    // Then, populate eventId inside ticketId
+                    model: 'EventMaster',     // Make sure to specify the Event model
+                },
+            });
+
+        // Construct a custom response with both visitor data and populated Event inside ticketId
         res.status(200).json({
             isOk: true,
-            data: addVisitor,
+            data: {
+                ...addVisitor.toObject(),  // Include all visitor data
+                Event: populatedVisitor.ticketId?.eventId,  // Add populated Event from ticketId
+            },
         });
-
     } catch (err) {
         console.log("Create Visitor error", err);
         return res.status(400).send(err);
     }
 };
+
+
 
 exports.getVisitor = async (req, res) => {
     const getVisitor = await Visitor.findOne({

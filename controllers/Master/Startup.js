@@ -13,17 +13,17 @@ exports.getStartUpDetailsMaster = async (req, res) => {
 exports.createStartUpDetailsMaster = async (req, res) => {
   try {
     console.log("jii", req.body)
-    if (!fs.existsSync(`${__basedir}/uploads/userImages`)) {
-      fs.mkdirSync(`${__basedir}/uploads/userImages`);
+    if (!fs.existsSync(`${__basedir}/uploads/Startup`)) {
+      fs.mkdirSync(`${__basedir}/uploads/Startup`);
     }
 
     // let logo =  `uploads/userImages/${logo[0].filename}` ? `uploads/userImages/${logo[0].filename}` : null;
     // let productImages =  `uploads/userImages/${productImages[0].filename}`? `uploads/userImages/${productImages[0].filename}` : null;
     // let brochure = `uploads/userImages/${brochure[0].filename}` ? `uploads/userImages/${brochure[0].filename}` : null;
     
-    let logo = req.files.logo ? `uploads/speakerImages/${req.files.logo[0].filename}` : null;
-    let productImages = req.files.productImages ? `uploads/speakerImages/${req.files.productImages[0].filename}` : null;
-    let brochure = req.files.brochure ? `uploads/speakerImages/${req.files.brochure[0].filename}` : null;
+    let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
+    let productImages = req.files.productImages ? `uploads/Startup/${req.files.productImages[0].filename}` : null;
+    let brochure = req.files.brochure ? `uploads/Startup/${req.files.brochure[0].filename}` : null;
     // let AchievementImage3 = req.files.AchievementImage3 ? `uploads/speakerImages/${req.files.AchievementImage3[0].filename}` : null;
 
 
@@ -87,7 +87,24 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            yearFounded,
            teamSize,ticketId
       }).save();
-      res.status(200).json({ isOk: true, data: add, message: "" });
+      const populatedStartup = await StartUpDetailsMaster.findById(add._id)
+      .populate({
+        path: 'ticketId',  // First, populate ticketId
+        populate: {
+          path: 'eventId',  // Then, populate eventId inside ticketId
+          model: 'EventMaster',  // Specify the Event model
+        },
+      });
+
+    // Respond with the populated data
+    res.status(200).json({
+      isOk: true,
+      data: {
+        ...add.toObject(),  // Include all startup details
+        Event: populatedStartup.ticketId?.eventId,  // Add populated event from ticketId
+      },
+      message: "",
+    });
     }
   } catch (err) {
     console.log(err);
