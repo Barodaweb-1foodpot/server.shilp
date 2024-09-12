@@ -28,7 +28,10 @@ const StartupSchema = new mongoose.Schema(
             type: String,
         },
 
-        password: String,
+        password: {
+            type: String,
+        },
+        
 
         companyName: {
             type: String,
