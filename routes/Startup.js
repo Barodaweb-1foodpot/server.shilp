@@ -16,8 +16,8 @@ const {
 } = require("../controllers/Master/Startup");
 const multer = require("multer");
 
-
 const directories = ["uploads/Startup"];
+
 directories.forEach((dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -25,7 +25,9 @@ directories.forEach((dir) => {
 });
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
+
         cb(null, "uploads/Startup");
+
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + "_" + file.originalname);
@@ -46,7 +48,10 @@ router.post("/auth/listByparams/StartUpDetailsMaster", catchAsync(listStartUpDet
 
 router.get("/auth/get/StartUpDetailsMaster/:_id", catchAsync(getStartUpDetailsMaster));
 
-router.put("/auth/update/StartUpDetailsMaster/:_id",upload.single("bannerImage"), catchAsync(updateStartUpDetailsMaster));
+router.put("/auth/update/StartUpDetailsMaster/:_id",upload.fields([
+  { name: 'logo', maxCount: 1 },
+  { name: 'brochure', maxCount: 1 },
+  { name: 'productImages', maxCount: 1 }]), catchAsync(updateStartUpDetailsMaster));
 
 router.delete("/auth/remove/StartUpDetailsMaster/:_id", catchAsync(removeStartUpDetailsMaster));
 

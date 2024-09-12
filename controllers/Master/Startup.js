@@ -24,6 +24,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
     let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
     let productImages = req.files.productImages ? `uploads/Startup/${req.files.productImages[0].filename}` : null;
     let brochure = req.files.brochure ? `uploads/Startup/${req.files.brochure[0].filename}` : null;
+
     // let AchievementImage3 = req.files.AchievementImage3 ? `uploads/speakerImages/${req.files.AchievementImage3[0].filename}` : null;
 
 
@@ -48,7 +49,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            stageOfStartup,
            yearFounded,
            teamSize,
-           IsActive ,
+           IsActive ,IsPaid ,
            ticketId} = req.body;  
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
@@ -85,6 +86,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            founderName,
            stageOfStartup,
            yearFounded,
+        IsPaid,
            teamSize,ticketId
       }).save();
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
@@ -208,12 +210,19 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
 
 exports.updateStartUpDetailsMaster = async (req, res) => {
   try {
-    let bannerImage = req.file
-      ? `uploads/userImages/${req.file.filename}`
-      : null;
+    let logo = req.files.logo ? `uploads/StartUpCompany/${req.files.logo[0].filename}` : null;
+    let productImages = req.files.productImages ? `uploads/StartUpCompany/${req.files.productImages[0].filename}` : null;
+    let brochure = req.files.brochure ? `uploads/StartUpCompany/${req.files.brochure[0].filename}` : null;
+
     let fieldvalues = { ...req.body };
-    if (bannerImage != null) {
-      fieldvalues.bannerImage = bannerImage;
+    if (logo != null) {
+      fieldvalues.logo = logo;
+    }
+    if (productImages != null) {
+      fieldvalues.productImages = productImages;
+    }
+    if (brochure != null) {
+      fieldvalues.brochure = brochure;
     }
     const update = await StartUpDetailsMaster.findOneAndUpdate(
       { _id: req.params._id },
