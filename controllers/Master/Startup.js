@@ -48,9 +48,11 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            stageOfStartup,
            yearFounded,
            teamSize,
-           IsActive } = req.body;  
+           IsActive ,
+           ticketId} = req.body;  
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
+      participantCategoryId:req.body.participantCategoryId
     }).exec();
 
     if (emailExists) {
@@ -83,7 +85,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            founderName,
            stageOfStartup,
            yearFounded,
-           teamSize,
+           teamSize,ticketId
       }).save();
       res.status(200).json({ isOk: true, data: add, message: "" });
     }
