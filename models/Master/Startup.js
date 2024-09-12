@@ -6,6 +6,11 @@ const StartupSchema = new mongoose.Schema(
             type: Schema.Types.ObjectId,
             ref: "ParticipantCategoryMaster",
         },
+        ticketId: {
+            type: Schema.Types.ObjectId,
+            ref: "TicketMaster",
+            required: true,
+        },
         categoryId: {
             type: Schema.Types.ObjectId,
             ref: "CategoryMaster",
