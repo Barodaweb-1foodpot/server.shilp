@@ -1,7 +1,8 @@
 const Contact = require("../../models/ContactUs/Conatct");
 exports.createContact = async (req, res) => {
+  console.log("body",req.body)
   try {
-    const { contactno, address, email } = req.body;
+    const { contactPersonName,number, subject, email,message } = req.body;
     const addContact = await new Contact(req.body).save();
     console.log("create country", addContact);
     res.status(200).json({ isOk: true, data: addContact, message: "" });
