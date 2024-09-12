@@ -30,6 +30,8 @@ router.delete(
   catchAsync(removeStageOfStartup)
 );
 
+router.post("/auth/listByparams/StageOfStartup", catchAsync(listStageOfStartupByParams));
+
 router.get("/auth/get/list/StageOfStartup" , catchAsync(listActiveStageOfStartup));
 
 module.exports = router;

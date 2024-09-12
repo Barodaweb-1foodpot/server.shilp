@@ -50,7 +50,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            stageOfStartup,
            yearFounded,
            teamSize,
-           IsActive } = req.body;  
+           IsActive,IsPaid } = req.body;  
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
     }).exec();
@@ -86,6 +86,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            stageOfStartup,
            yearFounded,
            teamSize,
+           IsPaid
       }).save();
       res.status(200).json({ isOk: true, data: add, message: "" });
     }

@@ -51,6 +51,11 @@ const InvestorSchema = new mongoose.Schema(
             default: true,
             
         },
+        IsPaid: {
+            type: Boolean,
+            default: false,
+            
+        },
     },
     { timestamps: true }
 );
