@@ -96,13 +96,27 @@ exports.listInvestorByParams = async (req, res) => {
 
 exports.createInvestor = async (req, res) => {
     try {
+        // Save the new investor
         const addInvestor = await new Investor(req.body).save();
-        console.log(addInvestor)
+
+        // Populate 'investmentId' and within it, populate 'projectId'
+        const populatedInvestor = await Investor.findById(addInvestor._id)
+            .populate({
+                path: 'investmentId',  // First, populate investmentId
+                populate: {
+                    path: 'projectId',  // Then, populate projectId inside investmentId
+                    model: 'Project',   // Specify the model for projectId (adjust model name as necessary)
+                },
+            });
+
+        // Construct a custom response with both investor data and populated project inside investmentId
         res.status(200).json({
             isOk: true,
-            data: addInvestor,
+            data: {
+                ...addInvestor.toObject(),  // Include all investor data
+                Project: populatedInvestor.investmentId?.projectId,  // Add populated project from investmentId
+            },
         });
-
     } catch (err) {
         console.log("Create Investor error", err);
         return res.status(400).send(err);

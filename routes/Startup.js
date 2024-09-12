@@ -17,7 +17,7 @@ const {
 const multer = require("multer");
 
 
-const directories = ["uploads/userImages"];
+const directories = ["uploads/Startup"];
 directories.forEach((dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -25,7 +25,7 @@ directories.forEach((dir) => {
 });
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/userImages");
+        cb(null, "uploads/Startup");
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + "_" + file.originalname);
