@@ -2,7 +2,7 @@ const EventMaster = require("../../models/Master/EventMaster");
 const fs = require("fs");
 
 exports.listEventMaster = async (req, res) => {
-  const list = await EventMaster.find().sort({ createdAt: -1 }).exec();
+    const list = await EventMaster.find({IsActive: true}).sort({ createdAt: -1 }).exec();
 
   res.json(list);
 };

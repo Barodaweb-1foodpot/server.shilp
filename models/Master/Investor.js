@@ -7,6 +7,11 @@ const InvestorSchema = new mongoose.Schema(
             ref: "ParticipantCategoryMaster",
             
         },
+        ticketId: {
+            type: Schema.Types.ObjectId,
+            ref: "TicketMaster",
+            required: true,
+        },
         name: {
             type: String,
             
@@ -14,6 +19,9 @@ const InvestorSchema = new mongoose.Schema(
         contactNo: {
             type: String,
             
+        },
+        countryCode: {
+            type: String,
         },
         email: {
             type: String,
