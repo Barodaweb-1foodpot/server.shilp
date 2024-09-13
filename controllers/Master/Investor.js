@@ -102,11 +102,11 @@ exports.createInvestor = async (req, res) => {
         // Populate 'investmentId' and within it, populate 'projectId'
         const populatedInvestor = await Investor.findById(addInvestor._id)
             .populate({
-                path: 'investmentId',  // First, populate investmentId
-                populate: {
-                    path: 'projectId',  // Then, populate projectId inside investmentId
-                    model: 'Project',   // Specify the model for projectId (adjust model name as necessary)
-                },
+                path: 'ticketId',  // First, populate ticketId
+        populate: {
+          path: 'eventId',  // Then, populate eventId inside ticketId
+          model: 'EventMaster',  // Specify the Event model
+        },
             });
 
         // Construct a custom response with both investor data and populated project inside investmentId
@@ -114,7 +114,7 @@ exports.createInvestor = async (req, res) => {
             isOk: true,
             data: {
                 ...addInvestor.toObject(),  // Include all investor data
-                Project: populatedInvestor.investmentId?.projectId,  // Add populated project from investmentId
+                Event: populatedInvestor.ticketId?.eventId // Add populated project from investmentId
             },
         });
     } catch (err) {
