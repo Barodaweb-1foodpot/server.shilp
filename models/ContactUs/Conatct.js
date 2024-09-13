@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 const { Schema, model, Types } = require("mongoose");
 const ContactSchema = new mongoose.Schema(
   {
-    contactno: {
+    contactPersonName: {
       type: String,
     },
-    address: {
+    subject: {
       type: String,
     },
     email: {
@@ -14,6 +14,12 @@ const ContactSchema = new mongoose.Schema(
     IsActive: {
       type: Boolean,
     },
+    number:{
+      type:Number
+    },
+    message:{
+      type:String
+    }
    
     
   },
