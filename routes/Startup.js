@@ -13,6 +13,7 @@ const {
   updateStartUpDetailsMaster,
   removeStartUpDetailsMaster,
   userLoginAdmin,
+  sendOTPEmail
 } = require("../controllers/Master/Startup");
 const multer = require("multer");
 
@@ -54,5 +55,7 @@ router.put("/auth/update/StartUpDetailsMaster/:_id",upload.fields([
 router.delete("/auth/remove/StartUpDetailsMaster/:_id", catchAsync(removeStartUpDetailsMaster));
 
 router.post("/adminLogin", catchAsync(userLoginAdmin));
+
+router.post("/sendOTPEmail", catchAsync(sendOTPEmail));
 
 module.exports = router;
