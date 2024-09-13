@@ -28,7 +28,10 @@ const StartupSchema = new mongoose.Schema(
             type: String,
         },
 
-        password: String,
+        password: {
+            type: String,
+        },
+        
 
         companyName: {
             type: String,
@@ -41,7 +44,8 @@ const StartupSchema = new mongoose.Schema(
             type:String
         },
         stageOfStartup :{
-            type:String
+            type:Schema.Types.ObjectId,
+            ref:"StageOfStartup"
         },
         yearFounded:{
             type:Date
@@ -90,8 +94,11 @@ const StartupSchema = new mongoose.Schema(
         IsActive: {
             type: Boolean,
             default: true,
-        
         },
+        IsPaid: {
+            type: Boolean,
+            
+        }
     },
     { timestamps: true }
 );
