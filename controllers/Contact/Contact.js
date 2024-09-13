@@ -90,8 +90,11 @@ exports.listContactByParams = async (req, res) => {
           $match: {
             $or: [
               {
-                Contact: { $regex: match, $options: "i" },
+                contactPersonName: { $regex: match, $options: "i" },
               },
+              {
+                email: { $regex: match, $options: "i" },
+              }
             ],
           },
         },
