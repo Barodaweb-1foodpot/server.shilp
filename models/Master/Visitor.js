@@ -55,6 +55,12 @@ const VisitorSchema = new mongoose.Schema(
             default: true,
             required: true,
         },
+        orderId: String,
+        amount: Number,
+        IsPaid: {
+            type: Boolean,
+            default: false,
+        }
     },
     { timestamps: true }
 );

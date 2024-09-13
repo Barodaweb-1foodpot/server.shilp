@@ -90,6 +90,7 @@ const StartupSchema = new mongoose.Schema(
             
         },
         orderId: String,
+        amount: Number,
 
         IsActive: {
             type: Boolean,
@@ -97,7 +98,7 @@ const StartupSchema = new mongoose.Schema(
         },
         IsPaid: {
             type: Boolean,
-            
+            default: false,
         }
     },
     { timestamps: true }

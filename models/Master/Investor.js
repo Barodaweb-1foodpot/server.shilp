@@ -64,6 +64,8 @@ const InvestorSchema = new mongoose.Schema(
             default: false,
             
         },
+        orderId: String,
+        amount: Number,
     },
     { timestamps: true }
 );
