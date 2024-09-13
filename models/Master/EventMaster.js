@@ -9,16 +9,16 @@ const EventMasterSchema = new mongoose.Schema(
         // },
         name: {
             type: String,
-            required: true,
+            
         },
         logo: String,
         contactNo: {
             type: String,
-            required: true,
+            
         },
         email: {
             type: String,
-            required: true,
+            
         },
         startDate: Date,
         endDate: Date,
@@ -30,12 +30,12 @@ const EventMasterSchema = new mongoose.Schema(
         StateID: {
             type: Schema.Types.ObjectId,
             ref: "State",
-            required: true,
+            
         },
         CountryID: {
             type: Schema.Types.ObjectId,
             ref: "Country",
-            required: true,
+
         },
         City: {
             type: String,
@@ -49,7 +49,7 @@ const EventMasterSchema = new mongoose.Schema(
         IsActive: {
             type: Boolean,
             default: true,
-            required: true,
+            
         },
     },
     { timestamps: true }
