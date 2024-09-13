@@ -17,8 +17,8 @@ const {
 } = require("../controllers/Master/Startup");
 const multer = require("multer");
 
+const directories = ["uploads/Startup"];
 
-const directories = ["uploads/StartUpCompany"];
 directories.forEach((dir) => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -26,7 +26,9 @@ directories.forEach((dir) => {
 });
 const multerStorage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/StartUpCompany");
+
+        cb(null, "uploads/Startup");
+
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + "_" + file.originalname);

@@ -22,6 +22,7 @@ const TicketMasterSchema = new mongoose.Schema(
         email: {
             type: String,
         },
+        amount: Number,
         remarks: String,
         startDate: Date,
         endDate: Date,

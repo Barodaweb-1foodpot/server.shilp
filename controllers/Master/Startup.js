@@ -19,20 +19,18 @@ const generateOTP = () => {
 exports.createStartUpDetailsMaster = async (req, res) => {
   try {
     console.log("jii", req.body)
-    if (!fs.existsSync(`${__basedir}/uploads/StartUpCompany`)) {
-      fs.mkdirSync(`${__basedir}/uploads/StartUpCompany`);
+    if (!fs.existsSync(`${__basedir}/uploads/Startup`)) {
+      fs.mkdirSync(`${__basedir}/uploads/Startup`);
     }
 
-    // let logo =  `uploads/userImages/${logo[0].filename}` ? `uploads/userImages/${logo[0].filename}` : null;
-    // let productImages =  `uploads/userImages/${productImages[0].filename}`? `uploads/userImages/${productImages[0].filename}` : null;
-    // let brochure = `uploads/userImages/${brochure[0].filename}` ? `uploads/userImages/${brochure[0].filename}` : null;
+    // let logo =  uploads/userImages/${logo[0].filename} ? uploads/userImages/${logo[0].filename} : null;
+    // let productImages =  uploads/userImages/${productImages[0].filename}? uploads/userImages/${productImages[0].filename} : null;
+    // let brochure = uploads/userImages/${brochure[0].filename} ? uploads/userImages/${brochure[0].filename} : null;
     
-    let logo = req.files.logo ? `uploads/StartUpCompany/${req.files.logo[0].filename}` : null;
-    let productImages = req.files.productImages ? `uploads/StartUpCompany/${req.files.productImages[0].filename}` : null;
-    let brochure = req.files.brochure ? `uploads/StartUpCompany/${req.files.brochure[0].filename}` : null;
-    
-    
-    // let AchievementImage3 = req.files.AchievementImage3 ? `uploads/speakerImages/${req.files.AchievementImage3[0].filename}` : null;
+    let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
+    let productImages = req.files.productImages ? `uploads/Startup/${req.files.productImages[0].filename}`: null;
+    let brochure = req.files.brochure ?`uploads/Startup/${req.files.brochure[0].filename}` : null;
+    // let AchievementImage3 = req.files.AchievementImage3 ? uploads/speakerImages/${req.files.AchievementImage3[0].filename} : null;
 
     let pass = generateOTP()
 
@@ -57,6 +55,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            stageOfStartup,
            yearFounded,
            teamSize,
+
            IsActive,IsPaid ,
            ticketId} = req.body;  
     const emailExists = await StartUpDetailsMaster.findOne({
@@ -94,9 +93,13 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            founderName,
            stageOfStartup,
            yearFounded,
+
            teamSize,ticketId,
            IsPaid
       }).save();
+
+
+      
 
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
       .populate({
@@ -106,10 +109,9 @@ exports.createStartUpDetailsMaster = async (req, res) => {
           model: 'EventMaster',  // Specify the Event model
         },
       });
+
       const cmsRecord = await new StartUpCms({
-        startupName: add._id, // Reference the startup ID
-        // Add any other fields required in StartupCMS
-         // Example fields, adjust as needed
+        startupName: add._id, 
          Title:"",
          Content:"",
          IsActive:true
@@ -122,6 +124,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         });
       }
       
+
     // Respond with the populated data
     res.status(200).json({
       isOk: true,
@@ -267,19 +270,17 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
 
 exports.updateStartUpDetailsMaster = async (req, res) => {
   try {
-    let logo = req.files.logo ? `uploads/StartUpCompany/${req.files.logo[0].filename}` : null;
-    let productImages = req.files.productImages ? `uploads/StartUpCompany/${req.files.productImages[0].filename}` : null;
-    let brochure = req.files.brochure ? `uploads/StartUpCompany/${req.files.brochure[0].filename}` : null;
+    let bannerImage = req.file
+      ? `uploads/userImages/${req.file.filename}`
+      : null;
 
+      let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
     let fieldvalues = { ...req.body };
-    if (logo != null) {
-      fieldvalues.logo = logo;
+    if (bannerImage != null) {
+      fieldvalues.bannerImage = bannerImage;
     }
-    if (productImages != null) {
-      fieldvalues.productImages = productImages;
-    }
-    if (brochure != null) {
-      fieldvalues.brochure = brochure;
+    if(logo != null){
+        fieldvalues.logo = logo;
     }
     const update = await StartUpDetailsMaster.findOneAndUpdate(
       { _id: req.params._id },

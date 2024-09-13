@@ -15,7 +15,7 @@ exports.listTicketMasterByParams = async (req, res) => {
         },
         {
             $lookup: {
-                from: "ParticipantCategoryMaster",
+                from: "participantcategorymasters",
                 localField: "participantCategoryId",
                 foreignField: "_id",
                 as: "participant",
@@ -34,7 +34,7 @@ exports.listTicketMasterByParams = async (req, res) => {
         },
         {
             $lookup: {
-                from: "EventMaster",
+                from: "eventmasters",
                 localField: "eventId",
                 foreignField: "_id",
                 as: "event",
