@@ -1,4 +1,6 @@
 const StartUpDetailsMaster = require("../../models/Master/Startup");
+const nodemailer = require('nodemailer');
+const StartUpCms = require("../../models/StartupCMS/StartupCMS")
 const fs = require("fs");
 
 exports.getStartUpDetailsMaster = async (req, res) => {
@@ -9,6 +11,10 @@ exports.getStartUpDetailsMaster = async (req, res) => {
     return res.status(500).send(error);
   }
 };
+const generateOTP = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
 
 exports.createStartUpDetailsMaster = async (req, res) => {
   try {
@@ -26,6 +32,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
     let brochure = req.files.brochure ?`uploads/Startup/${req.files.brochure[0].filename}` : null;
     // let AchievementImage3 = req.files.AchievementImage3 ? uploads/speakerImages/${req.files.AchievementImage3[0].filename} : null;
 
+    let pass = generateOTP()
 
       let { 
         participantCategoryId, 
@@ -33,7 +40,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         contactPersonName,
         contactNo,
          email ,
-          password , 
+          password  , 
           companyName ,
            description,
            remarks,
@@ -48,7 +55,8 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            stageOfStartup,
            yearFounded,
            teamSize,
-           IsActive ,
+
+           IsActive,IsPaid ,
            ticketId} = req.body;  
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
@@ -67,7 +75,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         contactPersonName,
         contactNo,
         email,
-        password,
+        password : pass,
         companyName,
         description,
         remarks,
@@ -85,8 +93,14 @@ exports.createStartUpDetailsMaster = async (req, res) => {
            founderName,
            stageOfStartup,
            yearFounded,
-           teamSize,ticketId
+
+           teamSize,ticketId,
+           IsPaid
       }).save();
+
+
+      
+
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
       .populate({
         path: 'ticketId',  // First, populate ticketId
@@ -95,6 +109,21 @@ exports.createStartUpDetailsMaster = async (req, res) => {
           model: 'EventMaster',  // Specify the Event model
         },
       });
+
+      const cmsRecord = await new StartUpCms({
+        startupName: add._id, 
+         Title:"",
+         Content:"",
+         IsActive:true
+      }).save();
+
+      if (!cmsRecord) {
+        return res.status(500).json({
+          isOk: false,
+          message: "Failed to create StartupCMS record",
+        });
+      }
+      
 
     // Respond with the populated data
     res.status(200).json({
@@ -111,6 +140,39 @@ exports.createStartUpDetailsMaster = async (req, res) => {
     return res.status(500).send(err);
   }
 };
+
+exports.sendOTPEmail = async (req,res) => {
+  let {email,password} = req.body
+  try {
+    
+    if (!email) {
+      throw new Error("Email details not found in notification");
+    }
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.EMAILID,
+        pass: process.env.PASSWORD,
+      },
+    });
+    const emailBodyWithoutHtml = "THis is you password to login into Admin Panel"
+    console.log("Email Body", emailBodyWithoutHtml);
+    // console.log("EmailSignature", notification.EmailSignature);
+    const mailOptions = {
+      to: email,
+      subject: "Login Cradentails",
+      html: `${emailBodyWithoutHtml} ${password}`, // Use html property to render HTML content
+    };
+    const response = transporter.sendMail(mailOptions);
+      res.status(200).json({response,isOk:true,message:"Mail send successfully"})
+  } catch (error) {
+    console.error("Error sending OTP email:", error);
+    throw error;
+  }
+};
+
+
+
 
 exports.listStartUpDetailsMaster = async (req, res) => {
   try {
