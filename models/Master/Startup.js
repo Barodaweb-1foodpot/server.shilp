@@ -91,6 +91,7 @@ const StartupSchema = new mongoose.Schema(
         },
         orderId: String,
         amount: Number,
+        votes: Number,
 
         IsActive: {
             type: Boolean,

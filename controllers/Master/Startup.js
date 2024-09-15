@@ -26,41 +26,41 @@ exports.createStartUpDetailsMaster = async (req, res) => {
     // let logo =  uploads/userImages/${logo[0].filename} ? uploads/userImages/${logo[0].filename} : null;
     // let productImages =  uploads/userImages/${productImages[0].filename}? uploads/userImages/${productImages[0].filename} : null;
     // let brochure = uploads/userImages/${brochure[0].filename} ? uploads/userImages/${brochure[0].filename} : null;
-    
+
     let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
-    let productImages = req.files.productImages ? `uploads/Startup/${req.files.productImages[0].filename}`: null;
-    let brochure = req.files.brochure ?`uploads/Startup/${req.files.brochure[0].filename}` : null;
+    let productImages = req.files.productImages ? `uploads/Startup/${req.files.productImages[0].filename}` : null;
+    let brochure = req.files.brochure ? `uploads/Startup/${req.files.brochure[0].filename}` : null;
     // let AchievementImage3 = req.files.AchievementImage3 ? uploads/speakerImages/${req.files.AchievementImage3[0].filename} : null;
 
     let pass = generateOTP()
 
-      let { 
-        participantCategoryId, 
-        categoryId, 
-        contactPersonName,
-        contactNo,
-         email ,
-          password  , 
-          companyName ,
-           description,
-           remarks,
-           StateID,
-           CountryID,
-           City,
-           address,
-           pincode,
-           countryCode,
-           legalName,
-           founderName,
-           stageOfStartup,
-           yearFounded,
-           teamSize,
+    let {
+      participantCategoryId,
+      categoryId,
+      contactPersonName,
+      contactNo,
+      email,
+      password,
+      companyName,
+      description,
+      remarks,
+      StateID,
+      CountryID,
+      City,
+      address,
+      pincode,
+      countryCode,
+      legalName,
+      founderName,
+      stageOfStartup,
+      yearFounded,
+      teamSize,
 
-           IsActive,IsPaid ,
-           ticketId} = req.body;  
+      IsActive, IsPaid,
+      ticketId } = req.body;
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
-      participantCategoryId:req.body.participantCategoryId
+      participantCategoryId: req.body.participantCategoryId
     }).exec();
 
     if (emailExists) {
@@ -75,7 +75,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         contactPersonName,
         contactNo,
         email,
-        password : pass,
+        password: pass,
         companyName,
         description,
         remarks,
@@ -85,36 +85,36 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         address,
         pincode,
         IsActive,
-        logo:logo,
-        brochure:brochure,
-        productImages:productImages,
+        logo: logo,
+        brochure: brochure,
+        productImages: productImages,
         countryCode,
-           legalName,
-           founderName,
-           stageOfStartup,
-           yearFounded,
+        legalName,
+        founderName,
+        stageOfStartup,
+        yearFounded,
 
-           teamSize,ticketId,
-           IsPaid
+        teamSize, ticketId,
+        IsPaid
       }).save();
 
 
-      
+
 
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
-      .populate({
-        path: 'ticketId',  // First, populate ticketId
-        populate: {
-          path: 'eventId',  // Then, populate eventId inside ticketId
-          model: 'EventMaster',  // Specify the Event model
-        },
-      });
+        .populate({
+          path: 'ticketId',  // First, populate ticketId
+          populate: {
+            path: 'eventId',  // Then, populate eventId inside ticketId
+            model: 'EventMaster',  // Specify the Event model
+          },
+        });
 
       const cmsRecord = await new StartUpCms({
-        startupName: add._id, 
-         Title:"",
-         Content:"",
-         IsActive:true
+        startupName: add._id,
+        Title: "",
+        Content: "",
+        IsActive: true
       }).save();
 
       if (!cmsRecord) {
@@ -123,17 +123,17 @@ exports.createStartUpDetailsMaster = async (req, res) => {
           message: "Failed to create StartupCMS record",
         });
       }
-      
 
-    // Respond with the populated data
-    res.status(200).json({
-      isOk: true,
-      data: {
-        ...add.toObject(),  // Include all startup details
-        Event: populatedStartup.ticketId?.eventId,  // Add populated event from ticketId
-      },
-      message: "",
-    });
+
+      // Respond with the populated data
+      res.status(200).json({
+        isOk: true,
+        data: {
+          ...add.toObject(),  // Include all startup details
+          Event: populatedStartup.ticketId?.eventId,  // Add populated event from ticketId
+        },
+        message: "",
+      });
     }
   } catch (err) {
     console.log(err);
@@ -141,10 +141,10 @@ exports.createStartUpDetailsMaster = async (req, res) => {
   }
 };
 
-exports.sendOTPEmail = async (req,res) => {
-  let {email,password} = req.body
+exports.sendOTPEmail = async (req, res) => {
+  let { email, password } = req.body
   try {
-    
+
     if (!email) {
       throw new Error("Email details not found in notification");
     }
@@ -164,15 +164,12 @@ exports.sendOTPEmail = async (req,res) => {
       html: `${emailBodyWithoutHtml} ${password}`, // Use html property to render HTML content
     };
     const response = transporter.sendMail(mailOptions);
-      res.status(200).json({response,isOk:true,message:"Mail send successfully"})
+    res.status(200).json({ response, isOk: true, message: "Mail send successfully" })
   } catch (error) {
     console.error("Error sending OTP email:", error);
     throw error;
   }
 };
-
-
-
 
 exports.listStartUpDetailsMaster = async (req, res) => {
   try {
@@ -234,7 +231,7 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
               {
                 companyName: { $regex: match, $options: "i" },
               },
-             
+
             ],
           },
         },
@@ -274,13 +271,13 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
       ? `uploads/userImages/${req.file.filename}`
       : null;
 
-      let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
+    let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
     let fieldvalues = { ...req.body };
     if (bannerImage != null) {
       fieldvalues.bannerImage = bannerImage;
     }
-    if(logo != null){
-        fieldvalues.logo = logo;
+    if (logo != null) {
+      fieldvalues.logo = logo;
     }
     const update = await StartUpDetailsMaster.findOneAndUpdate(
       { _id: req.params._id },
@@ -334,5 +331,32 @@ exports.userLoginAdmin = async (req, res) => {
       isOk: false,
       message: "An error occurred while logging in adminpanel",
     });
+  }
+};
+
+exports.voteNow = async (req, res) => {
+  try {
+    const find = await StartUpCms.findById({
+      _id: req.params._id,
+    });
+
+    const updatedStartup = await StartUpDetailsMaster.findOneAndUpdate(
+      { _id: find.startupName },
+      { $inc: { votes: 1 } },
+      { new: true }
+    );
+
+    console.log(updatedStartup)
+
+    if (!updatedStartup) {
+      return res.status(404).json({ message: "Startup not found" });
+    }
+
+    res.status(200).json({
+      message: "Vote updated successfully",
+      data: updatedStartup,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating vote", error });
   }
 };
