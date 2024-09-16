@@ -151,6 +151,18 @@ exports.getTicketMaster = async (req, res) => {
     res.status(200).json(getTicketMaster);
 };
 
+exports.listTicketMasterByParticipant = async (req, res) => {
+    try {
+        const getTicketMaster = await TicketMaster.find({
+            participantCategoryId: req.params.id,
+        }).exec();
+        res.status(200).json(getTicketMaster);
+    } catch (err) {
+        console.log(" error", err);
+        return res.status(500).send(err);
+    }
+};
+
 exports.removeTicketMaster = async (req, res) => {
     try {
         const delTicketMaster = await TicketMaster.findOneAndRemove({
