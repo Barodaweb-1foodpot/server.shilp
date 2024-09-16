@@ -24,32 +24,33 @@ const VisitorSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        companyName: {
-            type: String,
-        },
-        description: {
-            type: String,
-        },
-        remarks: String,
-        StateID: {
-            type: Schema.Types.ObjectId,
-            ref: "State",
-            required: true,
-        },
-        CountryID: {
-            type: Schema.Types.ObjectId,
-            ref: "Country",
-            required: true,
-        },
-        City: {
-            type: String,
-        },
-        address: {
-            type: String,
-        },
-        pincode: {
-            type: Number,
-        },
+        investmentAmount: Number,
+        // companyName: {
+        //     type: String,
+        // },
+        // description: {
+        //     type: String,
+        // },
+        // remarks: String,
+        // StateID: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: "State",
+        //     required: true,
+        // },
+        // CountryID: {
+        //     type: Schema.Types.ObjectId,
+        //     ref: "Country",
+        //     required: true,
+        // },
+        // City: {
+        //     type: String,
+        // },
+        // address: {
+        //     type: String,
+        // },
+        // pincode: {
+        //     type: Number,
+        // },
         IsActive: {
             type: Boolean,
             default: true,
