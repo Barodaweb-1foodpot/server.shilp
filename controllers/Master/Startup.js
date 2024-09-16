@@ -37,6 +37,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
     let {
       participantCategoryId,
       categoryId,
+      
       contactPersonName,
       contactNo,
       email,
@@ -94,7 +95,8 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         stageOfStartup,
         yearFounded,
 
-        teamSize, ticketId,
+        teamSize, 
+        ticketId,
         IsPaid
       }).save();
 

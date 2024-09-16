@@ -2,7 +2,7 @@ const TicketMaster = require("../../models/Master/TicketMaster");
 const fs = require("fs");
 
 exports.listTicketMaster = async (req, res) => {
-    const list = await TicketMaster.find().sort({ createdAt: -1 }).exec();
+    const list = await TicketMaster.find({ IsActive: true }).sort({ createdAt: -1 }).exec();
     res.json(list);
 };
 
