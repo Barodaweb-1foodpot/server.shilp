@@ -11,6 +11,23 @@ exports.getStartUpDetailsMaster = async (req, res) => {
     return res.status(500).send(error);
   }
 };
+
+exports.getpopulatedStartUpDetailsMaster = async (req, res) => {
+  try {
+    const find = await StartUpDetailsMaster.findById(req.params._id)
+      .populate('participantCategoryId')
+      .populate('ticketId')
+      .populate('categoryId')
+      .populate('stageOfStartup')
+      .populate('StateID')
+      .populate('CountryID')
+      .exec();
+    res.json(find);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
+
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };

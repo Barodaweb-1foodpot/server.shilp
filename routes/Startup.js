@@ -14,7 +14,8 @@ const {
   removeStartUpDetailsMaster,
   userLoginAdmin,
   sendOTPEmail,
-  voteNow
+  voteNow,
+  getpopulatedStartUpDetailsMaster
 } = require("../controllers/Master/Startup");
 const multer = require("multer");
 
@@ -62,5 +63,7 @@ router.post("/adminLogin", catchAsync(userLoginAdmin));
 router.post("/sendOTPEmail", catchAsync(sendOTPEmail));
 
 router.get("/auth/update-vote/StartUpDetailsMaster/:_id", catchAsync(voteNow));
+
+router.get("/auth/getpopulated/StartUpDetailsMaster/:_id", catchAsync(getpopulatedStartUpDetailsMaster));
 
 module.exports = router;
