@@ -3,6 +3,7 @@ const Payment = require("../../models/Payment/Payment");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Startup = require("../../models/Master/Startup");
+const Investor = require("../../models/Master/Investor");
 const TicketMaster = require("../../models/Master/TicketMaster");
 const Visitor = require("../../models/Master/Visitor");
 
@@ -12,17 +13,21 @@ const razorpay = new Razorpay({
 });
 
 exports.checkout = async (req, res) => {
-  const { currency, startupIds, ticketIds } = req.body;
+  const { startupIds, selectedTicket } = req.body;
 
   try {
 
-    const tickets = await TicketMaster.find({ _id: { $in: ticketIds } });
+    // const tickets = await TicketMaster.find({ _id: { $in: ticketIds } });
 
-    const amount = tickets.reduce((acc, ticket) => acc + ticket.amount, 0);
+    // const amount = tickets.reduce((acc, ticket) => acc + ticket.amount, 0);
+
+    const ticket = await TicketMaster.findOne({ _id: selectedTicket });
+
+    let amount = startupIds.length * ticket.amount;
 
     const options = {
       amount: amount * 100,
-      currency: currency || "INR",
+      currency: "INR",
     };
 
     const order = await razorpay.orders.create(options);
@@ -39,23 +44,27 @@ exports.checkout = async (req, res) => {
 
     const updatePromises = startupIds.map((participant) => {
       const { participantCategoryId, _id } = participant;
+      console.log("rere", participantCategoryId);
 
-      if (participantCategoryId === "66deba2b8d13756fe2697bee" || "66deba1c8d13756fe2697beb") {
+      if (participantCategoryId == "66deba2b8d13756fe2697bee" || participantCategoryId == "66deba1c8d13756fe2697beb") {
+        console.log("1,2");
         return Startup.findByIdAndUpdate(
           _id,
-          { orderId: order.id, amount },
+          { orderId: order.id, amount, ticketId: selectedTicket },
           { new: true }
         ).exec();
       } else if (participantCategoryId === "66deba3b8d13756fe2697bf1") {
+        console.log("3");
         return Investor.findByIdAndUpdate(
           _id,
-          { orderId: order.id, amount },
+          { orderId: order.id, amount, ticketId: selectedTicket },
           { new: true }
         ).exec();
       } else if (participantCategoryId === "66e1617c158fdfa7198f4763") {
+        console.log("4");
         return Visitor.findByIdAndUpdate(
           _id,
-          { orderId: order.id, amount },
+          { orderId: order.id, amount, ticketId: selectedTicket },
           { new: true }
         ).exec();
       }
@@ -88,10 +97,11 @@ exports.paymentVerification = async (req, res) => {
       eventId,
       razorpay_payment_id,
       razorpay_order_id,
-      razorpay_signature
+      razorpay_signature,
+      startupIds
     } = req.body;
 
-    console.log("body of pay ver", req.body)
+    console.log("body of pay ver", req.body, "paramssssssss", req.params.customActiveTab)
 
     let paymentId = razorpay_payment_id;
     let orderId = razorpay_order_id;
@@ -123,14 +133,67 @@ exports.paymentVerification = async (req, res) => {
 
         await payment.save();
 
-        const find = await Startup.updateMany(
-          { orderId: orderId },
-          { IsPaid: true },
-          { new: true }
-        ).exec();
+        let find;
+
+        if (req.params.customActiveTab == '1' || req.params.customActiveTab == '2') {
+
+          find = await Startup.updateMany(
+            { orderId: orderId },
+            { IsPaid: true },
+            { new: true }
+          ).exec();
+        }
+        else if (req.params.customActiveTab == '3') {
+          find = await Investor.updateMany(
+            { orderId: orderId },
+            { IsPaid: true },
+            { new: true }
+          ).exec();
+        }
+        else if (req.params.customActiveTab == '4') {
+          find = await Visitor.updateMany(
+            { orderId: orderId },
+            { IsPaid: true },
+            { new: true }
+          ).exec();
+        }
+
+
+        // const updatePromises = startupIds.map((participant) => {
+        //   const { participantCategoryId, _id } = participant;
+        //   console.log("rere", participantCategoryId);
+
+        //   if (participantCategoryId === "66deba2b8d13756fe2697bee" || "66deba1c8d13756fe2697beb") {
+        //     console.log("qq 1,2");
+        //     return Startup.findByIdAndUpdate(
+        //       _id,
+        //       { IsPaid: true },
+        //       { new: true }
+        //     ).exec();
+        //   } else if (participantCategoryId === "66deba3b8d13756fe2697bf1") {
+        //     console.log("qq 3");
+        //     return Investor.findByIdAndUpdate(
+        //       _id,
+        //       { IsPaid: true },
+        //       { new: true }
+        //     ).exec();
+        //   } else if (participantCategoryId === "66e1617c158fdfa7198f4763") {
+        //     console.log("qq 4");
+        //     return Visitor.findByIdAndUpdate(
+        //       _id,
+        //       { IsPaid: true },
+        //       { new: true }
+        //     ).exec();
+        //   }
+        // });
+
+        // const updatedStartups = await Promise.all(updatePromises);
         // return res.redirect(
         //   `${REACT_APP_API_URL}/payment-success?reference=${paymentId}`
         // );
+
+        console.log("qq", find);
+
         return res.redirect(
           `${process.env.REACT_APP_API_URL}/register`
         );
@@ -151,11 +214,7 @@ exports.paymentVerification = async (req, res) => {
 
       await payment.save();
 
-      const find = await Startup.updateMany(
-        { orderId: orderId },
-        { IsPaid: false },
-        { new: true }
-      ).exec();
+
       res.json({ success: false });
     }
 

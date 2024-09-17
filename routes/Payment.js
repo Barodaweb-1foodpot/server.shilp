@@ -8,6 +8,6 @@ const router = express.Router();
 // reazorpapy
 router.post("/auth/payment/checkout", catchAsync(checkout));
 
-router.post("/auth/payment/paymentVerification", catchAsync(paymentVerification));
+router.post("/auth/payment/paymentVerification/:customActiveTab", catchAsync(paymentVerification));
 
 module.exports = router;
