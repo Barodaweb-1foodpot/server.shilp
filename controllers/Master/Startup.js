@@ -54,7 +54,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
     let {
       participantCategoryId,
       categoryId,
-      
+
       contactPersonName,
       contactNo,
       email,
@@ -112,7 +112,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         stageOfStartup,
         yearFounded,
 
-        teamSize, 
+        teamSize,
         ticketId,
         IsPaid
       }).save();
@@ -207,7 +207,68 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
       {
         $match: { IsActive: IsActive },
       },
-
+      {
+        $lookup: {
+          from: "ticketmasters",
+          localField: "ticketId",
+          foreignField: "_id",
+          as: "ticketDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$ticketDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $set: {
+          ticket: "$ticketDetails.name",
+        },
+      },
+      {
+        $lookup: {
+          from: "categorymasters",
+          localField: "categoryId",
+          foreignField: "_id",
+          as: "categoryDetail",
+        },
+      },
+      {
+        $unwind: {
+          path: "$categoryDetail",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $set: {
+          category: "$categoryDetail.categoryName",
+        },
+      },
+      {
+        $match: {
+          $or: [
+            {
+              companyName: { $regex: match, $options: "i" },
+            },
+            {
+              ticket: { $regex: match, $options: "i" },
+            },
+            {
+              contactPersonName: { $regex: match, $options: "i" },
+            },
+            {
+              email: { $regex: match, $options: "i" },
+            },
+            {
+              contactNo: { $regex: match, $options: "i" },
+            },
+            {
+              category: { $regex: match, $options: "i" },
+            },
+          ],
+        },
+      },
       {
         $facet: {
           stage1: [
@@ -242,20 +303,7 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
         },
       },
     ];
-    if (match) {
-      query = [
-        {
-          $match: {
-            $or: [
-              {
-                companyName: { $regex: match, $options: "i" },
-              },
 
-            ],
-          },
-        },
-      ].concat(query);
-    }
 
     if (sorton && sortdir) {
       let sort = {};
