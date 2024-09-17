@@ -65,6 +65,9 @@ exports.listInvestorByParams = async (req, res) => {
                         {
                             City: { $regex: match, $options: "i" },
                         },
+                        {
+                            companyName: { $regex: match, $options: "i" },
+                        },
                     ],
                 },
             },

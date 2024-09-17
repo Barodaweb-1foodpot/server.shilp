@@ -88,7 +88,10 @@ exports.listFaqMasterByParams = async (req, res) => {
           $match: {
             $or: [
               {
-                FaqMaster: { $regex: match, $options: "i" },
+                que: { $regex: match, $options: "i" },
+              },
+              {
+                ans: { $regex: match, $options: "i" },
               },
             ],
           },
