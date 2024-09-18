@@ -2,6 +2,7 @@ const StartUpDetailsMaster = require("../../models/Master/Startup");
 const nodemailer = require('nodemailer');
 const StartUpCms = require("../../models/StartupCMS/StartupCMS")
 const fs = require("fs");
+const sharp = require('sharp');
 
 exports.getStartUpDetailsMaster = async (req, res) => {
   try {
@@ -35,26 +36,53 @@ const generateOTP = () => {
 
 exports.createStartUpDetailsMaster = async (req, res) => {
   try {
-    console.log("jii", req.body)
+    // console.log("jii", req.body);
     if (!fs.existsSync(`${__basedir}/uploads/Startup`)) {
       fs.mkdirSync(`${__basedir}/uploads/Startup`);
     }
 
-    // let logo =  uploads/userImages/${logo[0].filename} ? uploads/userImages/${logo[0].filename} : null;
-    // let productImages =  uploads/userImages/${productImages[0].filename}? uploads/userImages/${productImages[0].filename} : null;
-    // let brochure = uploads/userImages/${brochure[0].filename} ? uploads/userImages/${brochure[0].filename} : null;
+    const compressImage = async (inputPath, outputPath) => {
+      await sharp(inputPath)
+        .resize(300) 
+        .toFile(outputPath);
+    };
 
-    let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
-    let productImages = req.files.productImages ? `uploads/Startup/${req.files.productImages[0].filename}` : null;
-    let brochure = req.files.brochure ? `uploads/Startup/${req.files.brochure[0].filename}` : null;
-    // let AchievementImage3 = req.files.AchievementImage3 ? uploads/speakerImages/${req.files.AchievementImage3[0].filename} : null;
+    let logo = null;
+    let productImages = null;
+    let brochure = null;
 
-    let pass = generateOTP()
+    if (req.files.logo) {
+      const inputPath = req.files.logo[0].path;
+      const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.logo[0].filename}`;
+      const finalOutputPath = `uploads/Startup/${req.files.logo[0].filename}`;
+      await compressImage(inputPath, tempOutputPath);
+      fs.renameSync(tempOutputPath, finalOutputPath);
+      logo = finalOutputPath;
+    }
+
+    if (req.files.productImages) {
+      const inputPath = req.files.productImages[0].path;
+      const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.productImages[0].filename}`;
+      const finalOutputPath = `uploads/Startup/${req.files.productImages[0].filename}`;
+      await compressImage(inputPath, tempOutputPath);
+      fs.renameSync(tempOutputPath, finalOutputPath);
+      productImages = finalOutputPath;
+    }
+
+    if (req.files.brochure) {
+      const inputPath = req.files.brochure[0].path;
+      const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.brochure[0].filename}`;
+      const finalOutputPath = `uploads/Startup/${req.files.brochure[0].filename}`;
+      await compressImage(inputPath, tempOutputPath);
+      fs.renameSync(tempOutputPath, finalOutputPath);
+      brochure = finalOutputPath;
+    }
+
+    let pass = generateOTP();
 
     let {
       participantCategoryId,
       categoryId,
-
       contactPersonName,
       contactNo,
       email,
@@ -73,9 +101,11 @@ exports.createStartUpDetailsMaster = async (req, res) => {
       stageOfStartup,
       yearFounded,
       teamSize,
+      IsActive,
+      IsPaid,
+      ticketId
+    } = req.body;
 
-      IsActive, IsPaid,
-      ticketId } = req.body;
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
       participantCategoryId: req.body.participantCategoryId
@@ -111,21 +141,17 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         founderName,
         stageOfStartup,
         yearFounded,
-
         teamSize,
         ticketId,
         IsPaid
       }).save();
 
-
-
-
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
         .populate({
-          path: 'ticketId',  // First, populate ticketId
+          path: 'ticketId',  
           populate: {
-            path: 'eventId',  // Then, populate eventId inside ticketId
-            model: 'EventMaster',  // Specify the Event model
+            path: 'eventId',  
+            model: 'EventMaster',  
           },
         });
 
@@ -143,13 +169,12 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         });
       }
 
-
-      // Respond with the populated data
+      
       res.status(200).json({
         isOk: true,
         data: {
-          ...add.toObject(),  // Include all startup details
-          Event: populatedStartup.ticketId?.eventId,  // Add populated event from ticketId
+          ...add.toObject(),  
+          Event: populatedStartup.ticketId?.eventId,  
         },
         message: "",
       });
@@ -175,7 +200,7 @@ exports.sendOTPEmail = async (req, res) => {
       },
     });
     const emailBodyWithoutHtml = "THis is you password to login into Admin Panel"
-    console.log("Email Body", emailBodyWithoutHtml);
+    // console.log("Email Body", emailBodyWithoutHtml);
     // console.log("EmailSignature", notification.EmailSignature);
     const mailOptions = {
       to: email,
@@ -334,18 +359,94 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
 
 exports.updateStartUpDetailsMaster = async (req, res) => {
   try {
-    let bannerImage = req.file
-      ? `uploads/userImages/${req.file.filename}`
-      : null;
+    const compressImage = async (inputPath, outputPath) => {
+      await sharp(inputPath)
+        .resize(300) 
+        .toFile(outputPath);
+    };
 
-    let logo = req.files.logo ? `uploads/Startup/${req.files.logo[0].filename}` : null;
+   
+    const compressAndRename = async (file, tempDir, finalDir) => {
+      const inputPath = file.path;
+      const tempOutputPath = `${tempDir}/temp_${file.filename}`;
+      const finalOutputPath = `${finalDir}/${file.filename}`;
+    
+      await sharp(inputPath)
+        .resize(300) // Resize to 300px width, adjust as necessary
+        .toFile(tempOutputPath);
+    
+      // Ensure the file is not busy before renaming
+      let retries = 5;
+      while (retries > 0) {
+        try {
+          fs.renameSync(tempOutputPath, finalOutputPath);
+          break;
+        } catch (err) {
+          if (err.code === 'EBUSY') {
+            retries -= 1;
+            await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100ms before retrying
+          } else {
+            throw err;
+          }
+        }
+      }
+    
+      if (retries === 0) {
+        throw new Error(`Failed to rename file after multiple attempts: ${tempOutputPath}`);
+      }
+    
+      return finalOutputPath;
+    };
+    let brochure = null;
+    let logo = null;
+    let productImages = null;
+
+    const promises = [];
+
+    if (req.files.brochure) {
+      console.log("brochure", req.files.brochure);
+      promises.push(
+        compressAndRename(req.files.brochure[0], 'uploads/userImages', 'uploads/StartUp').then(
+          (outputPath) => {
+            brochure = outputPath;
+          }
+        )
+      );
+    }
+
+    if (req.files.logo) {
+      promises.push(
+        compressAndRename(req.files.logo[0], 'uploads/userImages', 'uploads/Startup').then(
+          (outputPath) => {
+            logo = outputPath;
+          }
+        )
+      );
+    }
+
+    if (req.files.productImages) {
+      promises.push(
+        compressAndRename(req.files.productImages[0], 'uploads/userImages', 'uploads/Startup').then(
+          (outputPath) => {
+            productImages = outputPath;
+          }
+        )
+      );
+    }
+
+    await Promise.all(promises);
+
     let fieldvalues = { ...req.body };
-    if (bannerImage != null) {
-      fieldvalues.bannerImage = bannerImage;
+    if (brochure != null) {
+      fieldvalues.brochure = brochure;
     }
     if (logo != null) {
       fieldvalues.logo = logo;
     }
+    if (productImages != null) {
+      fieldvalues.productImages = productImages;
+    }
+
     const update = await StartUpDetailsMaster.findOneAndUpdate(
       { _id: req.params._id },
       fieldvalues,
