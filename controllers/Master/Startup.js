@@ -384,7 +384,7 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
         } catch (err) {
           if (err.code === 'EBUSY') {
             retries -= 1;
-            await new Promise(resolve => setTimeout(resolve, 100)); // Wait for 100ms before retrying
+            await new Promise(resolve => setTimeout(resolve, 100)); 
           } else {
             throw err;
           }
