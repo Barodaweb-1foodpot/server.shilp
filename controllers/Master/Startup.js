@@ -3,6 +3,8 @@ const nodemailer = require('nodemailer');
 const StartUpCms = require("../../models/StartupCMS/StartupCMS")
 const fs = require("fs");
 const sharp = require('sharp');
+const path = require('path');
+
 
 exports.getStartUpDetailsMaster = async (req, res) => {
   try {
@@ -398,8 +400,14 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
       const inputPath = req.files.brochure[0].path;
       const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.brochure[0].filename}`;
       const finalOutputPath = `uploads/Startup/${req.files.brochure[0].filename}`;
-      await compressImage(inputPath, tempOutputPath);
-      fs.renameSync(tempOutputPath, finalOutputPath);
+      const fileExtension = path.extname(req.files.brochure[0].filename).toLowerCase();
+
+      if (fileExtension === '.pdf') {
+        fs.renameSync(inputPath, finalOutputPath);
+      } else {
+        await compressImage(inputPath, tempOutputPath);
+        fs.renameSync(tempOutputPath, finalOutputPath);
+      }
       brochure = finalOutputPath;
     }
 
@@ -422,6 +430,7 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
     res.json(update);
   } catch (err) {
     res.status(400).send(err);
+    console.log(err);
   }
 };
 
