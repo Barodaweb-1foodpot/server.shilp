@@ -8,7 +8,7 @@ const path = require('path');
 
 exports.getStartUpDetailsMaster = async (req, res) => {
   try {
-    const find = await StartUpDetailsMaster.findOne({ _id: req.params._id }).exec();
+    const find = await StartUpDetailsMaster.findOne({ _id: req.params._id }).populate('ticketId').exec();
     res.json(find);
   } catch (error) {
     return res.status(500).send(error);
@@ -228,11 +228,11 @@ exports.listStartUpDetailsMaster = async (req, res) => {
 
 exports.listStartUpDetailsMasterByParams = async (req, res) => {
   try {
-    let { skip, per_page, sorton, sortdir, match, IsActive } = req.body;
+    let { skip, per_page, sorton, sortdir, match, IsActive, IsPaid } = req.body;
 
     let query = [
       {
-        $match: { IsActive: IsActive },
+        $match: { IsActive: IsActive, IsPaid: IsPaid },
       },
       {
         $lookup: {
@@ -429,8 +429,8 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
     );
     res.json(update);
   } catch (err) {
-    res.status(400).send(err);
     console.log(err);
+    res.status(500).send(err);
   }
 };
 
@@ -449,7 +449,7 @@ exports.userLoginAdmin = async (req, res) => {
   const { email, password } = req.body;
   try {
     const usermp = await StartUpDetailsMaster.findOne({ email: email }).exec();
-    if (usermp.IsActive) {
+    if (usermp.IsActive && usermp.IsPaid) {
       if (usermp.password !== password) {
         return res.status(200).json({
           isOk: false,
