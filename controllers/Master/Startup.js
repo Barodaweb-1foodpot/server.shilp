@@ -1,6 +1,7 @@
 const StartUpDetailsMaster = require("../../models/Master/Startup");
 const nodemailer = require('nodemailer');
 const StartUpCms = require("../../models/StartupCMS/StartupCMS")
+const notification = require("../../models/Notifications/NotificationSetup");
 const fs = require("fs");
 const sharp = require('sharp');
 const path = require('path');
@@ -35,10 +36,44 @@ const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+const welcomeEmail = async (email) => {
+  try {
+    if (!email) {
+      throw new Error("Email details not found in notification");
+    }
+
+    const res = await notification.findOne({ formName: "Welcome Newsletter Subcription" }).exec();
+    
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: res.EmailFrom,
+        pass: res.EmailPassword,
+      },
+      tls: {
+        rejectUnauthorized: false
+      }
+    });
+
+    const emailBodyWithoutHtml = res.EmailSignature;
+    const mailOptions = {
+      to :email,
+      subject: res.emailSubject, 
+      html: `${emailBodyWithoutHtml}`,
+    };
+    
+    const response = transporter.sendMail(mailOptions);
+    console.log("Mail send successfully", response);
+
+  } catch (error) {
+    console.error("Error fetching notification:", error);
+  }
+}
+
 
 exports.createStartUpDetailsMaster = async (req, res) => {
   try {
-    // console.log("jii", req.body);
+    
     if (!fs.existsSync(`${__basedir}/uploads/Startup`)) {
       fs.mkdirSync(`${__basedir}/uploads/Startup`);
     }
@@ -148,6 +183,8 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         IsPaid
       }).save();
 
+      welcomeEmail(req.body.email);
+
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
         .populate({
           path: 'ticketId',  
@@ -182,7 +219,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
       });
     }
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return res.status(500).send(err);
   }
 };
@@ -216,6 +253,7 @@ exports.sendOTPEmail = async (req, res) => {
     throw error;
   }
 };
+
 
 exports.listStartUpDetailsMaster = async (req, res) => {
   try {
@@ -354,7 +392,7 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
 
     res.json(list);
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(500).send(error);
   }
 };
@@ -429,7 +467,7 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
     );
     res.json(update);
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     res.status(500).send(err);
   }
 };
@@ -490,7 +528,7 @@ exports.voteNow = async (req, res) => {
       { new: true }
     );
 
-    console.log(updatedStartup)
+    // console.log(updatedStartup)
 
     if (!updatedStartup) {
       return res.status(404).json({ message: "Startup not found" });
