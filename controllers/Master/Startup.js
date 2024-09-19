@@ -3,6 +3,8 @@ const nodemailer = require('nodemailer');
 const StartUpCms = require("../../models/StartupCMS/StartupCMS")
 const fs = require("fs");
 const sharp = require('sharp');
+const path = require('path');
+
 
 exports.getStartUpDetailsMaster = async (req, res) => {
   try {
@@ -357,84 +359,57 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
   }
 };
 
+
+
 exports.updateStartUpDetailsMaster = async (req, res) => {
+  
   try {
+
+    if (!fs.existsSync('uploads/Startup')) {
+      fs.mkdirSync('uploads/Startup');
+    }
     const compressImage = async (inputPath, outputPath) => {
       await sharp(inputPath)
-        .resize(300) 
+        .resize(300)
         .toFile(outputPath);
     };
 
-   
-    const compressAndRename = async (file, tempDir, finalDir) => {
-      const inputPath = file.path;
-      const tempOutputPath = `${tempDir}/temp_${file.filename}`;
-      const finalOutputPath = `${finalDir}/${file.filename}`;
-    
-      await sharp(inputPath)
-        .resize(300) // Resize to 300px width, adjust as necessary
-        .toFile(tempOutputPath);
-    
-      // Ensure the file is not busy before renaming
-      let retries = 5;
-      while (retries > 0) {
-        try {
-          fs.renameSync(tempOutputPath, finalOutputPath);
-          break;
-        } catch (err) {
-          if (err.code === 'EBUSY') {
-            retries -= 1;
-            await new Promise(resolve => setTimeout(resolve, 100)); 
-          } else {
-            throw err;
-          }
-        }
-      }
-    
-      if (retries === 0) {
-        throw new Error(`Failed to rename file after multiple attempts: ${tempOutputPath}`);
-      }
-    
-      return finalOutputPath;
-    };
     let brochure = null;
     let logo = null;
     let productImages = null;
 
-    const promises = [];
-
-    if (req.files.brochure) {
-      console.log("brochure", req.files.brochure);
-      promises.push(
-        compressAndRename(req.files.brochure[0], 'uploads/userImages', 'uploads/StartUp').then(
-          (outputPath) => {
-            brochure = outputPath;
-          }
-        )
-      );
-    }
-
     if (req.files.logo) {
-      promises.push(
-        compressAndRename(req.files.logo[0], 'uploads/userImages', 'uploads/Startup').then(
-          (outputPath) => {
-            logo = outputPath;
-          }
-        )
-      );
+      const inputPath = req.files.logo[0].path;
+      const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.logo[0].filename}`;
+      const finalOutputPath = `uploads/Startup/${req.files.logo[0].filename}`;
+      await compressImage(inputPath, tempOutputPath);
+      fs.renameSync(tempOutputPath, finalOutputPath);
+      logo = finalOutputPath;
     }
 
     if (req.files.productImages) {
-      promises.push(
-        compressAndRename(req.files.productImages[0], 'uploads/userImages', 'uploads/Startup').then(
-          (outputPath) => {
-            productImages = outputPath;
-          }
-        )
-      );
+      const inputPath = req.files.productImages[0].path;
+      const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.productImages[0].filename}`;
+      const finalOutputPath = `uploads/Startup/${req.files.productImages[0].filename}`;
+      await compressImage(inputPath, tempOutputPath);
+      fs.renameSync(tempOutputPath, finalOutputPath);
+      productImages = finalOutputPath;
     }
 
-    await Promise.all(promises);
+    if (req.files.brochure) {
+      const inputPath = req.files.brochure[0].path;
+      const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.brochure[0].filename}`;
+      const finalOutputPath = `uploads/Startup/${req.files.brochure[0].filename}`;
+      const fileExtension = path.extname(req.files.brochure[0].filename).toLowerCase();
+
+      if (fileExtension === '.pdf') {
+        fs.renameSync(inputPath, finalOutputPath);
+      } else {
+        await compressImage(inputPath, tempOutputPath);
+        fs.renameSync(tempOutputPath, finalOutputPath);
+      }
+      brochure = finalOutputPath;
+    }
 
     let fieldvalues = { ...req.body };
     if (brochure != null) {
