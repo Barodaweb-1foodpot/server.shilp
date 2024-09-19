@@ -1,5 +1,7 @@
 const EventMaster = require("../../models/Master/EventMaster");
 const fs = require("fs");
+const sharp = require('sharp');
+
 
 exports.listEventMaster = async (req, res) => {
     const list = await EventMaster.find({IsActive: true}).sort({ createdAt: -1 }).exec();
@@ -97,9 +99,17 @@ exports.createEventMaster = async (req, res) => {
     }
     console.log(req.body);
 
-    let logo = req.file
-      ? `uploads/StartUpCompany/${req.file.filename}`
-      : null;
+    let logo = null;
+    if (req.file) {
+      const inputPath = req.file.path;
+      const tempOutputPath = `${__basedir}/uploads/StartUpCompany/temp_${req.file.filename}`;
+      const finalOutputPath = `uploads/StartUpCompany/${req.file.filename}`;
+      await sharp(inputPath)
+        .resize(300) 
+        .toFile(tempOutputPath);
+      fs.renameSync(tempOutputPath, finalOutputPath);
+      logo = finalOutputPath;
+    }
 
     let {
       name,
@@ -132,7 +142,7 @@ exports.createEventMaster = async (req, res) => {
       City,
       address,
       pincode,
-      logo: logo, 
+      logo: logo,
       IsActive,
     }).save();
     res.status(200).json({ isOk: true, data: add, message: "" });
@@ -141,6 +151,7 @@ exports.createEventMaster = async (req, res) => {
     return res.status(500).send(err);
   }
 };
+
 
 exports.getEventMaster = async (req, res) => {
   const getEventMaster = await EventMaster.findOne({
@@ -163,20 +174,30 @@ exports.removeEventMaster = async (req, res) => {
 };
 
 exports.updateEventMaster = async (req, res) => {
-    try {
-      let logo = req.file ? `uploads/StartUpCompany/${req.file.filename}` : null;
-
-      let fieldvalues = { ...req.body };
-      if (logo != null) {
-        fieldvalues.logo = logo;
-      }
-      const update = await EventMaster.findOneAndUpdate(
-        { _id: req.params._id },
-        fieldvalues,
-        { new: true }
-      );
-      res.json(update);
-    } catch (err) {
-      res.status(400).send(err);
+  try {
+    let logo = null;
+    if (req.file) {
+      const inputPath = req.file.path;
+      const tempOutputPath = `${__basedir}/uploads/StartUpCompany/temp_${req.file.filename}`;
+      const finalOutputPath = `uploads/StartUpCompany/${req.file.filename}`;
+      await sharp(inputPath)
+        .resize(300) 
+        .toFile(tempOutputPath);
+      fs.renameSync(tempOutputPath, finalOutputPath);
+      logo = finalOutputPath;
     }
-  };
+
+    let fieldvalues = { ...req.body };
+    if (logo != null) {
+      fieldvalues.logo = logo;
+    }
+    const update = await EventMaster.findOneAndUpdate(
+      { _id: req.params._id },
+      fieldvalues,
+      { new: true }
+    );
+    res.json(update);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+};
