@@ -8,11 +8,11 @@ exports.listVisitor = async (req, res) => {
 };
 
 exports.listVisitorByParams = async (req, res) => {
-    let { skip, per_page, sorton, sortdir, match, IsActive } = req.body;
+    let { skip, per_page, sorton, sortdir, match, IsActive, IsPaid } = req.body;
 
     let query = [
         {
-            $match: { IsActive: IsActive },
+            $match: { IsActive: IsActive, IsPaid: IsPaid },
         },
         {
             $lookup: {
@@ -171,7 +171,7 @@ exports.createVisitor = async (req, res) => {
 exports.getVisitor = async (req, res) => {
     const getVisitor = await Visitor.findOne({
         _id: req.params._id,
-    }).exec();
+    }).populate('ticketId').exec();
     res.status(200).json(getVisitor);
 };
 
