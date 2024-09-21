@@ -2,6 +2,7 @@ const AwardVoting = require("../../models/Master/AwardVoting");
 const nodemailer = require('nodemailer');
 const StartupCMS = require("../../models/StartupCMS/StartupCMS");
 const Startup = require("../../models/Master/Startup");
+const NotificationSetup = require("../../models/Notifications/NotificationSetup");
 const resetTokens = {};
 const OTP_EXPIRATION_TIME = 5 * 60 * 1000;
 const OTP_RESEND_INTERVAL = 60 * 1000;
@@ -223,19 +224,43 @@ exports.sendOTP = async (req, res) => {
                 timestamp: Date.now(),
             };
 
-            const transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: process.env.EMAILID,
-                    pass: process.env.PASSWORD
-                }
-            });
+            // const transporter = nodemailer.createTransport({
+            //     service: 'gmail',
+            //     auth: {
+            //         user: process.env.EMAILID,
+            //         pass: process.env.PASSWORD
+            //     }
+            // });
+
+        const notification = await NotificationSetup.findOne({ formName: "Email on OTP verification for Voting" }).exec();
+            
+        const transporter = nodemailer.createTransport({
+            host: notification.OutgoingServer,
+            port: notification.OutgoingPort,
+            secure: true,
+            auth: {
+              user: notification.EmailFrom,
+              pass: notification.EmailPassword,
+            },
+          });
+
+            // const transporter = nodemailer.createTransport({
+            //     host: 'startupfestgujarat.com',
+            //     port: 465,
+            //     secure: true,
+            //     auth: {
+            //       user: process.env.EMAILID,
+            //       pass: process.env.PASSWORD,
+            //     },
+            //   });
+
+            let emailBody = notification.EmailSignature.replace("{{otp}}", otp);
 
             const mailOptions = {
                 from: process.env.EMAILID,
                 to: email,
                 subject: 'Your OTP for Email Verification',
-                text: `Your OTP is ${otp}`
+                html: emailBody
             };
 
             transporter.sendMail(mailOptions, (error, info) => {

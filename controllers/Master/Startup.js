@@ -231,20 +231,32 @@ exports.sendOTPEmail = async (req, res) => {
     if (!email) {
       throw new Error("Email details not found in notification");
     }
+
     const transporter = nodemailer.createTransport({
-      service: 'Gmail',
+      host: 'startupfestgujarat.com',
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAILID,
         pass: process.env.PASSWORD,
       },
     });
-    const emailBodyWithoutHtml = "THis is you password to login into Admin Panel"
-    // console.log("Email Body", emailBodyWithoutHtml);
-    // console.log("EmailSignature", notification.EmailSignature);
+    // const emailBodyWithoutHtml = "This is you password to login into Participant Panel. https://participant.startupfestgujarat.com/"
+    
+    const emailBody = `
+    <p>Hello,</p>
+    <p>Welcome to the Startup Fest Gujarat! Here are your login credentials:</p>
+    <p><strong>Password:</strong> ${password}</p>
+    <p>You can log in using the following link:</p>
+    <p><a href="https://participant.startupfestgujarat.com/">Participant Panel</a></p>
+    <p>If you have any questions, feel free to reach out.</p>
+    <p>Best regards,<br>Startup Fest Gujarat Team</p>
+  `;
+
     const mailOptions = {
       to: email,
       subject: "Login Cradentails",
-      html: `${emailBodyWithoutHtml} ${password}`, // Use html property to render HTML content
+      html: emailBody, // Use html property to render HTML content
     };
     const response = transporter.sendMail(mailOptions);
     res.status(200).json({ response, isOk: true, message: "Mail send successfully" })
