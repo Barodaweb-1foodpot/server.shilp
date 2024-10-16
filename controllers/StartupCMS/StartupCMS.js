@@ -15,6 +15,25 @@ exports.listContByParams = async (req, res) => {
       $match: { IsActive: IsActive },
     },
     {
+      $lookup: {
+        from: "startups",
+        localField: "startupName",
+        foreignField: "_id",
+        as: "startup",
+      },
+    },
+    {
+      $unwind: {
+        path: "$startup",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      $set: {
+        startup: "$startup.companyName",
+      },
+    },
+    {
       $facet: {
         stage1: [
           {

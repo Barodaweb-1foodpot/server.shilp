@@ -201,7 +201,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
 
       const cmsRecord = await new StartUpCms({
         startupName: add._id,
-        Title: "",
+        Title: add.companyName,
         Content: "",
         IsActive: true
       }).save();
