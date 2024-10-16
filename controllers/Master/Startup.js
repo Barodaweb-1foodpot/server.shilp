@@ -5,6 +5,7 @@ const notification = require("../../models/Notifications/NotificationSetup");
 const fs = require("fs");
 const sharp = require('sharp');
 const path = require('path');
+const mongoose = require('mongoose');
 
 
 exports.getStartUpDetailsMaster = async (req, res) => {
@@ -43,7 +44,7 @@ const welcomeEmail = async (email) => {
     }
 
     const res = await notification.findOne({ formName: "Welcome Newsletter Subcription" }).exec();
-    
+
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
@@ -57,11 +58,11 @@ const welcomeEmail = async (email) => {
 
     const emailBodyWithoutHtml = res.EmailSignature;
     const mailOptions = {
-      to :email,
-      subject: res.emailSubject, 
+      to: email,
+      subject: res.emailSubject,
       html: `${emailBodyWithoutHtml}`,
     };
-    
+
     const response = transporter.sendMail(mailOptions);
     console.log("Mail send successfully", response);
 
@@ -73,14 +74,13 @@ const welcomeEmail = async (email) => {
 
 exports.createStartUpDetailsMaster = async (req, res) => {
   try {
-    
     if (!fs.existsSync(`${__basedir}/uploads/Startup`)) {
       fs.mkdirSync(`${__basedir}/uploads/Startup`);
     }
 
     const compressImage = async (inputPath, outputPath) => {
       await sharp(inputPath)
-        .resize(300) 
+        .resize(300)
         .toFile(outputPath);
     };
 
@@ -143,6 +143,11 @@ exports.createStartUpDetailsMaster = async (req, res) => {
       ticketId
     } = req.body;
 
+    // Set ObjectId fields to null if they are empty or invalid
+    StateID = StateID && StateID !== "" ? StateID : null;
+    CountryID = CountryID && CountryID !== "" ? CountryID : null;
+    stageOfStartup = stageOfStartup && stageOfStartup !== "" ? stageOfStartup : null;
+
     const emailExists = await StartUpDetailsMaster.findOne({
       email: req.body.email,
       participantCategoryId: req.body.participantCategoryId
@@ -187,10 +192,10 @@ exports.createStartUpDetailsMaster = async (req, res) => {
 
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
         .populate({
-          path: 'ticketId',  
+          path: 'ticketId',
           populate: {
-            path: 'eventId',  
-            model: 'EventMaster',  
+            path: 'eventId',
+            model: 'EventMaster',
           },
         });
 
@@ -208,21 +213,20 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         });
       }
 
-      
       res.status(200).json({
         isOk: true,
         data: {
-          ...add.toObject(),  
-          Event: populatedStartup.ticketId?.eventId,  
+          ...add.toObject(),
+          Event: populatedStartup.ticketId?.eventId,
         },
         message: "",
       });
     }
   } catch (err) {
-    // console.log(err);
     return res.status(500).send(err);
   }
 };
+
 
 exports.sendOTPEmail = async (req, res) => {
   let { email, password } = req.body
@@ -242,7 +246,7 @@ exports.sendOTPEmail = async (req, res) => {
       },
     });
     // const emailBodyWithoutHtml = "This is you password to login into Participant Panel. https://participant.startupfestgujarat.com/"
-    
+
     const emailBody = `
     <p>Hello,</p>
     <p>Welcome to the Startup Fest Gujarat! Here are your login credentials:</p>
@@ -409,15 +413,13 @@ exports.listStartUpDetailsMasterByParams = async (req, res) => {
   }
 };
 
-
-
 exports.updateStartUpDetailsMaster = async (req, res) => {
-  
   try {
-
+    // Create directories for uploads if they don't exist
     if (!fs.existsSync('uploads/Startup')) {
       fs.mkdirSync('uploads/Startup');
     }
+
     const compressImage = async (inputPath, outputPath) => {
       await sharp(inputPath)
         .resize(300)
@@ -428,6 +430,7 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
     let logo = null;
     let productImages = null;
 
+    // Handle file uploads (logo, brochure, productImages)
     if (req.files.logo) {
       const inputPath = req.files.logo[0].path;
       const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.logo[0].filename}`;
@@ -462,6 +465,28 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
     }
 
     let fieldvalues = { ...req.body };
+
+    // Validate and clean ObjectId fields (StateID, CountryID, etc.)
+    ['StateID', 'CountryID', 'stageOfStartup', 'participantCategoryId', 'categoryId', 'ticketId'].forEach((field) => {
+      if (!mongoose.Types.ObjectId.isValid(fieldvalues[field])) {
+        delete fieldvalues[field]; // Remove invalid ObjectId fields
+      }
+    });
+
+    // Remove other invalid fields (null, undefined, invalid pincode, yearFounded)
+    Object.keys(fieldvalues).forEach((key) => {
+      if (
+        fieldvalues[key] === null ||
+        fieldvalues[key] === undefined ||
+        fieldvalues[key] === '' ||
+        (key === 'pincode' && isNaN(Number(fieldvalues[key]))) ||
+        (key === 'yearFounded' && isNaN(new Date(fieldvalues[key]).getTime()))
+      ) {
+        delete fieldvalues[key];
+      }
+    });
+
+    // Add files (logo, brochure, productImages) if they are not null
     if (brochure != null) {
       fieldvalues.brochure = brochure;
     }
@@ -472,14 +497,16 @@ exports.updateStartUpDetailsMaster = async (req, res) => {
       fieldvalues.productImages = productImages;
     }
 
+    // Update the document
     const update = await StartUpDetailsMaster.findOneAndUpdate(
       { _id: req.params._id },
       fieldvalues,
-      { new: true }
+      { new: true } // Return the updated document
     );
+
     res.json(update);
   } catch (err) {
-    // console.log(err);
+    console.error(err);
     res.status(500).send(err);
   }
 };
