@@ -112,12 +112,15 @@ exports.createStartUpDetailsMaster = async (req, res) => {
 
     if (req.files.brochure) {
       const inputPath = req.files.brochure[0].path;
-      const tempOutputPath = `${__basedir}/uploads/Startup/temp_${req.files.brochure[0].filename}`;
       const finalOutputPath = `uploads/Startup/${req.files.brochure[0].filename}`;
-      await compressImage(inputPath, tempOutputPath);
-      fs.renameSync(tempOutputPath, finalOutputPath);
+      
+      console.log('Brochure file info:', req.files.brochure[0]); // Log file info
+      fs.renameSync(inputPath, finalOutputPath);
       brochure = finalOutputPath;
     }
+
+    console.log('Brochure path:', brochure); // Log brochure path
+
 
     let pass = generateOTP();
 
