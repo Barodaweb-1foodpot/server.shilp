@@ -43,8 +43,9 @@ const welcomeEmail = async (email) => {
       throw new Error("Email details not found in notification");
     }
 
-    const res = await notification.findOne({ formName: "Welcome Newsletter Subcription" }).exec();
+    const res = await notification.findOne({ formName: "Welcome Newsletter Subcription", IsActive: true }).exec();
 
+    if(res){
     const transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
@@ -65,6 +66,9 @@ const welcomeEmail = async (email) => {
 
     const response = transporter.sendMail(mailOptions);
     console.log("Mail send successfully", response);
+  }else{
+    console.log("email not fount");
+  }
 
   } catch (error) {
     console.error("Error fetching notification:", error);
@@ -188,7 +192,7 @@ exports.createStartUpDetailsMaster = async (req, res) => {
         IsPaid
       }).save();
 
-      welcomeEmail(req.body.email);
+      // welcomeEmail(req.body.email);
 
       const populatedStartup = await StartUpDetailsMaster.findById(add._id)
         .populate({
@@ -229,46 +233,48 @@ exports.createStartUpDetailsMaster = async (req, res) => {
 
 
 exports.sendOTPEmail = async (req, res) => {
-  let { email, password } = req.body
+  let { email, password } = req.body;
   try {
-
     if (!email) {
       throw new Error("Email details not found in notification");
     }
 
-    const transporter = nodemailer.createTransport({
-      host: 'startupfestgujarat.com',
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAILID,
-        pass: process.env.PASSWORD,
-      },
-    });
-    // const emailBodyWithoutHtml = "This is you password to login into Participant Panel. https://participant.startupfestgujarat.com/"
+    const notificationData = await notification.findOne({ formName: "Welcome Startup Fest Gujarat", IsActive: true }).exec();
 
-    const emailBody = `
-    <p>Hello,</p>
-    <p>Welcome to the Startup Fest Gujarat! Here are your login credentials:</p>
-    <p><strong>Password:</strong> ${password}</p>
-    <p>You can log in using the following link:</p>
-    <p><a href="https://participant.startupfestgujarat.com/">Participant Panel</a></p>
-    <p>If you have any questions, feel free to reach out.</p>
-    <p>Best regards,<br>Startup Fest Gujarat Team</p>
-  `;
+    if (notificationData) {
+      const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+          user: notificationData.EmailFrom,
+          pass: notificationData.EmailPassword,
+        },
+        tls: {
+          rejectUnauthorized: false
+        }
+      });
 
-    const mailOptions = {
-      to: email,
-      subject: "Login Cradentails",
-      html: emailBody, // Use html property to render HTML content
-    };
-    const response = transporter.sendMail(mailOptions);
-    res.status(200).json({ response, isOk: true, message: "Mail send successfully" })
+      const emailBodyWithoutHtml = notificationData.EmailSignature;
+
+      var body2 = emailBodyWithoutHtml.replace("{{email}}", email).replace("{{password}}", password);
+
+      const mailOptions = {
+        to: email,
+        subject: notificationData.emailSubject,
+        html: `${body2}`,
+      };
+
+      const response = await transporter.sendMail(mailOptions); // Await the email sending
+      res.status(200).json({ response, isOk: true, message: "Mail sent successfully" });
+    } else {
+      console.log("Notification email details not found");
+      res.status(500).json({ message: "Notification details not found" });
+    }
   } catch (error) {
     console.error("Error sending OTP email:", error);
-    throw error;
+    res.status(500).json({ error: error.message });
   }
 };
+
 
 
 exports.listStartUpDetailsMaster = async (req, res) => {
